@@ -44,6 +44,10 @@ public class CachedWater {
         return state.hasProperty(NATURAL) && state.getValue(NATURAL);
     }
 
+    public static boolean isNatural(BlockPos pos) {
+        return isNatural(world.getBlockState(pos));
+    }
+
     public static int getWaterLevel(BlockPos ipos) {
         LongToIntFunction func = pos -> {
             BlockState state = getBlockState(BlockPos.of(pos));

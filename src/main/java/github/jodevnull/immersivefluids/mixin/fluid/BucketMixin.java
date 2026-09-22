@@ -1,4 +1,4 @@
-package github.jodevnull.immersivefluids.mixin;
+package github.jodevnull.immersivefluids.mixin.fluid;
 
 import github.jodevnull.immersivefluids.features.NonCachedWater;
 import net.minecraft.core.BlockPos;

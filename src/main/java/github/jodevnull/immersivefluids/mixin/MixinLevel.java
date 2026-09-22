@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import static github.jodevnull.immersivefluids.properties.WaterFluidProperties.NATURAL;
 
 @Mixin(Level.class)
-public abstract class LevelMixin
+public abstract class MixinLevel
 {
     @Shadow
     public abstract BlockState getBlockState(BlockPos pos);

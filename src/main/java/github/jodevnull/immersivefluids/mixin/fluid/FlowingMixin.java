@@ -1,4 +1,4 @@
-package github.jodevnull.immersivefluids.mixin;
+package github.jodevnull.immersivefluids.mixin.fluid;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;

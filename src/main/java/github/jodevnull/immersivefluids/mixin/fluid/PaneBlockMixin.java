@@ -1,4 +1,4 @@
-package github.jodevnull.immersivefluids.mixin;
+package github.jodevnull.immersivefluids.mixin.fluid;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
