@@ -1,6 +1,6 @@
 package github.jodevnull.immersivefluids.mixin.fluid;
 
-import github.jodevnull.immersivefluids.properties.WaterFluidProperties;
+import github.jodevnull.immersivefluids.properties.WaterProperties;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class WaterPropertiesMixin {
     @Inject(at = @At("HEAD"), method = "createFluidStateDefinition")
     protected void appendProperties(StateDefinition.Builder<Fluid, FluidState> builder, CallbackInfo Ci) {
-        builder.add(WaterFluidProperties.ISFINITE);
+        builder.add(WaterProperties.ISFINITE);
     }
 }
 

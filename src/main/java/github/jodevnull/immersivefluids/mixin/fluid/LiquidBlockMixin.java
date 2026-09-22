@@ -2,7 +2,13 @@ package github.jodevnull.immersivefluids.mixin.fluid;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import github.jodevnull.immersivefluids.properties.WaterFluidProperties;
+import com.simibubi.create.foundation.fluid.FluidHelper;
+import github.jodevnull.immersivefluids.features.CachedWater;
+import github.jodevnull.immersivefluids.features.RainFeature;
+import github.jodevnull.immersivefluids.properties.WaterProperties;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -17,8 +23,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static github.jodevnull.immersivefluids.properties.WaterFluidProperties.NATURAL;
+import static github.jodevnull.immersivefluids.properties.WaterProperties.EVAPORATION;
 
 @Mixin(LiquidBlock.class)
 public abstract class LiquidBlockMixin extends Block implements BucketPickup
@@ -31,13 +38,33 @@ public abstract class LiquidBlockMixin extends Block implements BucketPickup
     @Final
     public static IntegerProperty LEVEL;
 
-    @Inject(
-        at = {@At("TAIL")},
-        method = {"createBlockStateDefinition"}
-    )
+    @Inject(at=@At("HEAD"), method = "isRandomlyTicking", cancellable = true)
+    private void ifc$enableRandomTickForWater(BlockState state, CallbackInfoReturnable<Boolean> cir) {
+        final var fluidState = state.getFluidState();
+
+        cir.setReturnValue(!fluidState.isEmpty()
+            && FluidHelper.isWater(fluidState.getType())
+            && fluidState.getAmount() == 1
+        );
+    }
+
+    @Inject(at=@At("HEAD"), method = "randomTick")
+    private void ifc$doEvaporation(BlockState state, ServerLevel level, BlockPos pos, RandomSource random, CallbackInfo ci) {
+        if (RainFeature.canEvaporate(level, pos, state)) {
+            final int evaporation = state.getValue(EVAPORATION);
+
+            if (evaporation == 1) {
+                if (CachedWater.world != null) CachedWater.setWaterLevel(0, pos);
+            } else {
+                if (evaporation > 1) level.setBlock(pos, state.setValue(EVAPORATION, evaporation - 1), 3);
+            }
+        }
+    }
+
+    @Inject(at = @At("TAIL"), method = "createBlockStateDefinition")
     protected void appendProperties(StateDefinition.Builder<Fluid, FluidState> builder, CallbackInfo Ci) {
-        builder.add(WaterFluidProperties.NATURAL);
-        builder.add(WaterFluidProperties.ISFINITE);
+        builder.add(WaterProperties.EVAPORATION);
+        builder.add(WaterProperties.ISFINITE);
     }
 
     @WrapOperation(
@@ -46,7 +73,7 @@ public abstract class LiquidBlockMixin extends Block implements BucketPickup
     )
     public void ifc_injectProperties(LiquidBlock instance, BlockState blockState, Operation<Void> original) {
         this.registerDefaultState(
-            this.stateDefinition.any().setValue(LEVEL, 0).setValue(NATURAL, true)
+            this.stateDefinition.any().setValue(LEVEL, 0).setValue(EVAPORATION, 0)
         );
     }
 
@@ -56,7 +83,7 @@ public abstract class LiquidBlockMixin extends Block implements BucketPickup
     )
     public void ifc_injectProperties2(LiquidBlock instance, BlockState blockState, Operation<Void> original) {
         this.registerDefaultState(
-            this.stateDefinition.any().setValue(LEVEL, 0).setValue(NATURAL, true)
+            this.stateDefinition.any().setValue(LEVEL, 0).setValue(EVAPORATION, 0)
         );
     }
 }

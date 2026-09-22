@@ -21,9 +21,6 @@ public class FlowWater {
     }
 
     public static void flowWater(LevelAccessor world, BlockPos fluidPos, FluidState state) {
-
-
-
         //Tick Counter
         if (fluidPos.getY() == worldMinY) {
             // TODO INSECURE

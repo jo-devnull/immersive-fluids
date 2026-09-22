@@ -2,6 +2,7 @@ package github.jodevnull.immersivefluids.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import github.jodevnull.immersivefluids.features.CachedWater;
+import github.jodevnull.immersivefluids.properties.WaterProperties;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -11,7 +12,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-import static github.jodevnull.immersivefluids.properties.WaterFluidProperties.NATURAL;
+import static github.jodevnull.immersivefluids.properties.WaterProperties.EVAPORATION;
 
 @Mixin(Level.class)
 public abstract class MixinLevel
@@ -35,8 +36,8 @@ public abstract class MixinLevel
             return state;
 
         if (old.hasProperty(BlockStateProperties.WATERLOGGED) && old.getValue(BlockStateProperties.WATERLOGGED))
-            if (state.hasProperty(NATURAL))
-                return state.setValue(NATURAL, false);
+            if (state.hasProperty(EVAPORATION))
+                return state.setValue(EVAPORATION, WaterProperties.MAX_EVAPORATION);
 
         return state;
     }

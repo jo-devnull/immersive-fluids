@@ -1,6 +1,8 @@
 package github.jodevnull.immersivefluids.features;
 
+import com.simibubi.create.foundation.fluid.FluidHelper;
 import github.jodevnull.immersivefluids.WaterPhysics;
+import github.jodevnull.immersivefluids.properties.WaterProperties;
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
 import net.minecraft.core.BlockPos;
@@ -11,7 +13,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.LiquidBlockContainer;
-import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.chunk.LevelChunkSection;
@@ -21,10 +22,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.LongToIntFunction;
 
-import static github.jodevnull.immersivefluids.WaterPhysics.LOGGER;
 import static github.jodevnull.immersivefluids.WaterPhysics.WATER_LEVEL;
-import static github.jodevnull.immersivefluids.properties.WaterFluidProperties.ISFINITE;
-import static github.jodevnull.immersivefluids.properties.WaterFluidProperties.NATURAL;
+import static github.jodevnull.immersivefluids.properties.WaterProperties.ISFINITE;
+import static github.jodevnull.immersivefluids.properties.WaterProperties.EVAPORATION;
 
 public class CachedWater {
 
@@ -41,7 +41,11 @@ public class CachedWater {
     }
 
     public static boolean isNatural(BlockState state) {
-        return state.hasProperty(NATURAL) && state.getValue(NATURAL);
+        return state.hasProperty(EVAPORATION) && state.getValue(EVAPORATION) == 0;
+    }
+
+    public static boolean isNaturalWater(BlockState state) {
+        return FluidHelper.isWater(state.getFluidState().getType()) && isNatural(state);
     }
 
     public static boolean isNatural(BlockPos pos) {
@@ -151,12 +155,12 @@ public class CachedWater {
             if (level <= 8) {
                 if (level == 8) {
                     if (!(prev.getBlock() instanceof LiquidBlockContainer))
-                        setBlockStateNoNeighbors(pos, prev, Blocks.WATER.defaultBlockState().setValue(NATURAL, false));
+                        setBlockStateNoNeighbors(pos, prev, WaterProperties.interacted(Blocks.WATER.defaultBlockState()));
                 } else {
                     if (!(prev.getBlock() instanceof BucketPickup))
                         world.destroyBlock(pos, true);
 
-                    setBlockStateNoNeighbors(pos, prev, Fluids.FLOWING_WATER.getFlowing(level, false).createLegacyBlock().setValue(NATURAL, false));
+                    setBlockStateNoNeighbors(pos, prev, WaterProperties.interacted(Fluids.FLOWING_WATER.getFlowing(level, false).createLegacyBlock()));
                 }
             }
         }

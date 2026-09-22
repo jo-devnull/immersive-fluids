@@ -5,11 +5,11 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "MixinLevel",
+    "MixinServerLevel",
     "create.OpenEndedPipeMixin",
     "fluid.BucketMixin",
     "fluid.FlowingLavaMixin",
     "fluid.FlowingMixin",
-    "fluid.FlowingWaterMixin",
     "fluid.LavaFluidMixin",
     "fluid.LiquidBlockMixin",
     "fluid.MixinPistonBaseBlock",
