@@ -33,12 +33,12 @@ public class ModPlayerEvents
         if (CachedWater.world == null)
             return;
 
-        if (player.getMainHandItem().is(Items.STICK)) {
-            player.sendSystemMessage(Component.literal(state.toString()));
-            player.sendSystemMessage(Component.literal(state.getFluidState().toString()));
-            player.sendSystemMessage(Component.literal("is natural: %b".formatted(CachedWater.isNatural(pos))));
-            player.sendSystemMessage(Component.literal("water level: %d".formatted(CachedWater.getWaterLevel(pos))));
-        }
+        // if (player.getMainHandItem().is(Items.STICK)) {
+        //     player.sendSystemMessage(Component.literal(state.toString()));
+        //     player.sendSystemMessage(Component.literal(state.getFluidState().toString()));
+        //     player.sendSystemMessage(Component.literal("is natural: %b".formatted(CachedWater.isNatural(pos))));
+        //     player.sendSystemMessage(Component.literal("water level: %d".formatted(CachedWater.getWaterLevel(pos))));
+        // }
 
         if (!CachedWater.isWater(state) || CachedWater.isNatural(state))
             return;
