@@ -1,5 +1,6 @@
 package github.jodevnull.immersivefluids.features;
 
+import github.jodevnull.immersivefluids.WaterPhysics;
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
 import net.minecraft.core.BlockPos;
@@ -56,7 +57,7 @@ public class CachedWater {
 
     public static boolean isInfinite(BlockPos pos) {
         BlockState state = getBlockState(pos);
-        return (state.hasProperty(ISFINITE) && !state.getValue(ISFINITE));
+        return isNatural(state) || (state.hasProperty(ISFINITE) && !state.getValue(ISFINITE));
     }
 
     public static boolean isNotFull(int waterLevel) {
@@ -136,36 +137,23 @@ public class CachedWater {
     private static void setWaterLevelDirect(int level, BlockPos pos) {
         BlockState prev = getBlockState(pos);
 
-        assert  prev.isAir() ||
-            prev.hasProperty(WATER_LEVEL) ||
-            !prev.getFluidState().isEmpty() ||
-            level < 0;
+        assert prev.isAir() || prev.hasProperty(WaterPhysics.WATER_LEVEL) || !prev.getFluidState().isEmpty() || level < 0;
 
-        if (prev.hasProperty(WATER_LEVEL)) {
-            setBlockStateNoNeighbors(pos, prev, prev.setValue(WATER_LEVEL, level));
-        } else {
-            if (level == 0) {
-                setBlockStateNoNeighbors(pos, prev, Blocks.AIR.defaultBlockState());
-            } else if (level < 0) {
-                // System.out.println("Trying to set waterlevel " + level);
-            } else if (level <= 8) {
+        if (prev.hasProperty(WaterPhysics.WATER_LEVEL)) {
+            setBlockStateNoNeighbors(pos, prev, prev.setValue(WaterPhysics.WATER_LEVEL, level));
+        } else if (level == 0) {
+            setBlockStateNoNeighbors(pos, prev, Blocks.AIR.defaultBlockState());
+        } else if (level >= 0) {
+            if (level <= 8) {
                 if (level == 8) {
-                    if (!(prev.getBlock() instanceof LiquidBlockContainer)) { // Don't fill kelp etc
-                        setBlockStateNoNeighbors(pos, prev, Blocks.WATER.defaultBlockState());
-                    }
+                    if (!(prev.getBlock() instanceof LiquidBlockContainer))
+                        setBlockStateNoNeighbors(pos, prev, Blocks.WATER.defaultBlockState().setValue(NATURAL, false));
                 } else {
-                    if (!(prev.getBlock() instanceof BucketPickup)) {
+                    if (!(prev.getBlock() instanceof BucketPickup))
                         world.destroyBlock(pos, true);
-                    } else {
-                        if (prev.getBlock() instanceof SimpleWaterloggedBlock) {
-                            //TODO proper waterlogged flow
-                        }
-                    }
 
-                    setBlockStateNoNeighbors(pos, prev, Fluids.FLOWING_WATER.getFlowing(level, false).createLegacyBlock());
+                    setBlockStateNoNeighbors(pos, prev, Fluids.FLOWING_WATER.getFlowing(level, false).createLegacyBlock().setValue(NATURAL, false));
                 }
-            } else {
-                LOGGER.warn("HELP THY SOUL Trying to set waterlevel {}", level);
             }
         }
     }
@@ -176,7 +164,7 @@ public class CachedWater {
         if (existingWater == -1) throw new IllegalStateException("Tried to add water to a full block");
 
         int totalWater = existingWater + level;
-        if (totalWater > 8) {
+        if (totalWater > 8 && !isNatural(world.getBlockState(pos))) {
             addWater(totalWater - 8, pos.above());
             setWaterLevel(8, pos);
         } else {

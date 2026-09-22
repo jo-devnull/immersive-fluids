@@ -24,11 +24,10 @@ public class ModPlayerEvents
         final var pos = event.getPos().relative(event.getHitVec().getDirection());
         final var state = event.getLevel().getBlockState(pos);
 
-        if (player.getItemInHand(hand).isEmpty()) {
-            player.sendSystemMessage(Component.literal(state.toString()));
-        }
-
         if (!CachedWater.isWater(state) || CachedWater.isNatural(state))
+            return;
+
+        if (CachedWater.world == null)
             return;
 
         if (PickupWaterHandler.handle((ServerLevel) event.getLevel(), player, hand, pos)) {

@@ -30,15 +30,8 @@ repositories {
 		}
 	}
 
-	maven {
-		name = "Iron's Maven - Release"
-		url = "https://code.redspace.io/releases"
-	}
-
-	maven {
-		name = "Iron's Maven - Snapshots"
-		url = "https://code.redspace.io/snapshots"
-	}
+	maven { url = "https://maven.createmod.net" } // Create, Ponder, Flywheel
+	maven { url = "https://maven.ithundxr.dev/snapshots" } // Registrate
 }
 
 base {
@@ -96,6 +89,12 @@ neoForge {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
+	implementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
+	implementation("net.createmod.ponder:ponder-neoforge:${ponder_version}+mc${minecraft_version}")
+	compileOnly("dev.engine-room.flywheel:flywheel-neoforge-api-${minecraft_version}:${flywheel_version}")
+	runtimeOnly("dev.engine-room.flywheel:flywheel-neoforge-${minecraft_version}:${flywheel_version}")
+	implementation("com.tterrag.registrate:Registrate:${registrate_version}")
+	
 	for (property in rootProject.properties) {
 		if (!property.key.startsWithAny("modrinth.", "curseforge.")) {
 			continue
