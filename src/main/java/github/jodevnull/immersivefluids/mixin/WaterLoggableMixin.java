@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 
 @Mixin(SimpleWaterloggedBlock.class)
-public interface WaterLoggableMixin {
-
+public interface WaterLoggableMixin
+{
 /*    @Inject(at = @At("HEAD"), method = "canPlaceLiquid", cancellable = true)
     default void canFill(BlockGetter world, BlockPos pos, BlockState state, Fluid fluid, CallbackInfoReturnable<Boolean> cir) {
         if (state.hasProperty(WATER_LEVEL)) {
@@ -35,6 +35,4 @@ public interface WaterLoggableMixin {
             }
         }
     }*/
-
-
 }

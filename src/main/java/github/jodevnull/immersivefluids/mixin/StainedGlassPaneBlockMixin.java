@@ -30,5 +30,4 @@ public class StainedGlassPaneBlockMixin {
 
         return instance.setValue(property, comparable);
     }
-
 }

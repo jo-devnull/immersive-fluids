@@ -14,7 +14,7 @@ public class WaterFluidMixin {
     }
 
     @Inject(at = @At("HEAD"), method = "getTickDelay", cancellable = true)
-    private void getTickRate(LevelReader world, CallbackInfoReturnable<Integer> bruh) {
+    private void getTickRate(LevelReader level, CallbackInfoReturnable<Integer> bruh) {
         bruh.setReturnValue(2);
     }
 }
