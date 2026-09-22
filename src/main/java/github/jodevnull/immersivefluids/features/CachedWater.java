@@ -23,6 +23,7 @@ import java.util.function.LongToIntFunction;
 import static github.jodevnull.immersivefluids.WaterPhysics.LOGGER;
 import static github.jodevnull.immersivefluids.WaterPhysics.WATER_LEVEL;
 import static github.jodevnull.immersivefluids.properties.WaterFluidProperties.ISFINITE;
+import static github.jodevnull.immersivefluids.properties.WaterFluidProperties.NATURAL;
 
 public class CachedWater {
 
@@ -36,6 +37,10 @@ public class CachedWater {
     public static int countMa() {
         a += 1;
         return a;
+    }
+
+    public static boolean isNatural(BlockState state) {
+        return state.hasProperty(NATURAL) && state.getValue(NATURAL);
     }
 
     public static int getWaterLevel(BlockPos ipos) {

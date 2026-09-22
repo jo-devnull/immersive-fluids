@@ -2,6 +2,8 @@ package github.jodevnull.immersivefluids;
 
 import com.mojang.logging.LogUtils;
 import github.jodevnull.immersivefluids.features.NonCachedWater;
+import github.jodevnull.immersivefluids.registry.ModRecipeSerializers;
+import github.jodevnull.immersivefluids.registry.ModRecipeTypes;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.network.chat.Component;
@@ -28,6 +30,8 @@ public class WaterPhysics
         // Proceed with mild caution.
         LOGGER.info("Immersive Fluids loaded!");
         NeoForge.EVENT_BUS.addListener(this::registerCommand);
+        ModRecipeTypes.RECIPE_TYPES.register(modEventBus);
+        ModRecipeSerializers.RECIPE_SERIALIZERS.register(modEventBus);
     }
 
     private void registerCommand(RegisterCommandsEvent event) {
