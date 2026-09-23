@@ -39,7 +39,7 @@ public abstract class MixinServerLevel extends Level
     private void ifc$spawnRainWater(BlockPos blockPos, CallbackInfo ci, @Local(name="blockpos") BlockPos blockpos) {
         ifc$tickCounter++;
 
-        if (ifc$tickCounter > 20)
+        if (ifc$tickCounter > 15)
             ifc$tickCounter = 0;
         else return;
 
