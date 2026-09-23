@@ -4,7 +4,7 @@ import github.jodevnull.immersivefluids.WaterPhysics;
 import github.jodevnull.immersivefluids.recipe.PickupWaterRecipe;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraftforge.registries.DeferredRegister;
 
 import java.util.function.Supplier;
 

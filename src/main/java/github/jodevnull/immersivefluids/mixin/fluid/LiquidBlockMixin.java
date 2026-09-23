@@ -68,7 +68,7 @@ public abstract class LiquidBlockMixin extends Block implements BucketPickup
     }
 
     @WrapOperation(
-        method = "<init>",
+        method = "<init>(Ljava/util/function/Supplier;Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V",
         at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/LiquidBlock;registerDefaultState(Lnet/minecraft/world/level/block/state/BlockState;)V")
     )
     public void ifc_injectProperties(LiquidBlock instance, BlockState blockState, Operation<Void> original) {

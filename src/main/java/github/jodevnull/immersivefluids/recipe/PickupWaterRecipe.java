@@ -1,31 +1,42 @@
 package github.jodevnull.immersivefluids.recipe;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.google.gson.*;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import github.jodevnull.immersivefluids.WaterPhysics;
 import github.jodevnull.immersivefluids.registry.ModRecipeSerializers;
 import github.jodevnull.immersivefluids.registry.ModRecipeTypes;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Objects;
 
 @MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-public class PickupWaterRecipe implements Recipe<PickupWaterRecipeInput>
+public class PickupWaterRecipe implements Recipe<SimpleContainer>
 {
+    private final ResourceLocation id;
     private final String group;
     private final int amount;
     private final Ingredient input;
     private final ItemStack output;
 
-    public PickupWaterRecipe(String group, int amount, Ingredient input, ItemStack output) {
+    public PickupWaterRecipe(ResourceLocation id, String group, int amount, Ingredient input, ItemStack output) {
+        this.id = id;
         this.group = group;
         this.amount = amount;
         this.input = input;
@@ -42,6 +53,11 @@ public class PickupWaterRecipe implements Recipe<PickupWaterRecipeInput>
     }
 
     @Override
+    public ResourceLocation getId() {
+        return this.id;
+    }
+
+    @Override
     public String getGroup() {
         return this.group;
     }
@@ -54,7 +70,7 @@ public class PickupWaterRecipe implements Recipe<PickupWaterRecipeInput>
     }
 
     public ItemStack getOutput() {
-        return this.output;
+        return this.output.copy();
     }
 
     public int getAmount() {
@@ -62,8 +78,8 @@ public class PickupWaterRecipe implements Recipe<PickupWaterRecipeInput>
     }
 
     @Override
-    public ItemStack assemble(PickupWaterRecipeInput recipeInput, HolderLookup.Provider provider) {
-        return this.output.copy();
+    public ItemStack assemble(@NotNull SimpleContainer inv, @NotNull RegistryAccess access) {
+        return this.output;
     }
 
     @Override
@@ -72,16 +88,16 @@ public class PickupWaterRecipe implements Recipe<PickupWaterRecipeInput>
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
+    public ItemStack getResultItem(@NotNull RegistryAccess access) {
         return output;
     }
 
     @Override
-    public boolean matches(PickupWaterRecipeInput recipeInput, Level level) {
-        if (recipeInput.isEmpty())
+    public boolean matches(SimpleContainer inv, @NotNull Level level) {
+        if (inv.isEmpty())
             return false;
 
-        return input.test(recipeInput.getItem(0));
+        return input.test(inv.getItem(0));
     }
 
     @Override
@@ -101,6 +117,7 @@ public class PickupWaterRecipe implements Recipe<PickupWaterRecipeInput>
 
         PickupWaterRecipe that = (PickupWaterRecipe) o;
 
+        if (!getId().equals(that.getId())) return false;
         if (!getGroup().equals(that.getGroup())) return false;
         if (!input.equals(that.input)) return false;
         if (amount != that.getAmount()) return false;
@@ -110,7 +127,8 @@ public class PickupWaterRecipe implements Recipe<PickupWaterRecipeInput>
 
     @Override
     public int hashCode() {
-        int result = getGroup().hashCode();
+        int result = getId().hashCode();
+        result = 31 * result + getGroup().hashCode();
         result = 31 * result + input.hashCode();
         result = 31 * result + output.hashCode();
         result = 31 * result + ((Object) amount).hashCode();
@@ -120,43 +138,64 @@ public class PickupWaterRecipe implements Recipe<PickupWaterRecipeInput>
     @ParametersAreNonnullByDefault
     public static class Serializer implements RecipeSerializer<PickupWaterRecipe>
     {
-        public static final StreamCodec<RegistryFriendlyByteBuf, PickupWaterRecipe> STREAM_CODEC =
-            StreamCodec.of(PickupWaterRecipe.Serializer::toNetwork, PickupWaterRecipe.Serializer::fromNetwork);
+        public Serializer() {}
 
-        public static final MapCodec<PickupWaterRecipe> CODEC =
-            RecordCodecBuilder.mapCodec(
-                inst -> inst.group(
-                    Codec.STRING.optionalFieldOf("group", "").forGetter(PickupWaterRecipe::getGroup),
-                    Codec.INT.fieldOf("amount").forGetter(PickupWaterRecipe::getAmount),
-                    Ingredient.MAP_CODEC_NONEMPTY.fieldOf("container").forGetter(PickupWaterRecipe::getInput),
-                    ItemStack.CODEC.fieldOf("result").forGetter(PickupWaterRecipe::getOutput)
-                ).apply(inst, PickupWaterRecipe::new)
-            );
+        @Override
+        public PickupWaterRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
+            final var group = GsonHelper.getAsString(json, "group", "");
+            final var amount = GsonHelper.getAsInt(json, "amount");
+            final var container = Ingredient.fromJson(GsonHelper.getAsJsonObject(json, "container"));
+            final var result = readOutput(GsonHelper.getAsJsonObject(json, "result"));
 
-        public static PickupWaterRecipe fromNetwork(RegistryFriendlyByteBuf buffer) {
-            final var group = buffer.readUtf(32767);
-            final var amount = buffer.readInt();
-            final var input = Ingredient.CONTENTS_STREAM_CODEC.decode(buffer);
-            final var output = ItemStack.STREAM_CODEC.decode(buffer);
+            if (container.isEmpty())
+                throw new JsonParseException("No ingredients for pickup water recipe");
 
-            return new PickupWaterRecipe(group, amount, input, output);
+            if (result.isEmpty())
+                throw new JsonParseException("No output for pickup water recipe");
+
+            return new PickupWaterRecipe(recipeId, group, amount, container, result);
         }
 
-        public static void toNetwork(RegistryFriendlyByteBuf buffer, PickupWaterRecipe recipe) {
+        @Nullable
+        @Override
+        public PickupWaterRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
+            String group = buffer.readUtf(32767);
+            int amount = buffer.readInt();
+            Ingredient input = Ingredient.fromNetwork(buffer);
+            ItemStack output = buffer.readItem();
+
+            return new PickupWaterRecipe(recipeId, group, amount, input, output);
+        }
+
+        @Override
+        public void toNetwork(FriendlyByteBuf buffer, PickupWaterRecipe recipe) {
             buffer.writeUtf(recipe.group);
             buffer.writeInt(recipe.amount);
-            Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.input);
-            ItemStack.STREAM_CODEC.encode(buffer, recipe.output);
+            recipe.input.toNetwork(buffer);
+            buffer.writeItem(recipe.output);
         }
 
-        @Override
-        public MapCodec<PickupWaterRecipe> codec() {
-            return CODEC;
-        }
+        private static ItemStack readOutput(JsonElement element) {
+            if (!element.isJsonObject())
+                throw new JsonSyntaxException("Must be a json object");
 
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, PickupWaterRecipe> streamCodec() {
-            return STREAM_CODEC;
+            final var json = element.getAsJsonObject();
+            final var itemId = GsonHelper.getAsString(json, "item");
+
+            final ItemStack itemstack = new ItemStack(Objects.requireNonNull(ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(itemId))), 1);
+
+            if (json.has("nbt")) {
+                try {
+                    final var nbt = json.get("nbt");
+                    itemstack.setTag(TagParser.parseTag(
+                        nbt.isJsonObject() ? WaterPhysics.GSON.toJson(nbt) : GsonHelper.convertToString(nbt, "nbt")));
+                }
+                catch (CommandSyntaxException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return itemstack;
         }
     }
 }

@@ -5,13 +5,14 @@ import github.jodevnull.immersivefluids.registry.ModRecipeTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 
 public class PickupWaterHandler
 {
     public static boolean handle(ServerLevel level, Player player, InteractionHand hand, BlockPos pos) {
         final var input = player.getItemInHand(hand);
-        final var container = new PickupWaterRecipeInput(input);
+        final var container = new SimpleContainer(input);
 
         final var recipeOpt =
             level.getRecipeManager().getRecipeFor(
@@ -23,7 +24,7 @@ public class PickupWaterHandler
         if (recipeOpt.isEmpty())
             return false;
 
-        final var recipe = recipeOpt.get().value();
+        final var recipe = recipeOpt.get();
         final var minWaterRequired = recipe.getAmount();
         final var waterLevel = CachedWater.getWaterLevel(pos);
 

@@ -11,6 +11,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.storage.WritableLevelData;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,8 +36,8 @@ public abstract class MixinServerLevel extends Level
     @Unique
     private int ifc$tickCounter = 0;
 
-    @Inject(method = "tickPrecipitation", at= @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/Block;handlePrecipitation(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/biome/Biome$Precipitation;)V"))
-    private void ifc$spawnRainWater(BlockPos blockPos, CallbackInfo ci, @Local(name="blockpos") BlockPos blockpos) {
+    @Inject(method = "tickChunk", at= @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/Block;handlePrecipitation(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/biome/Biome$Precipitation;)V"))
+    private void ifc$spawnRainWater(LevelChunk p_8715_, int p_8716_, CallbackInfo ci, @Local(name="blockpos1") BlockPos blockpos) {
         ifc$tickCounter++;
 
         if (ifc$tickCounter > 15)

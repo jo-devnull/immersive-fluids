@@ -3,11 +3,11 @@ package github.jodevnull.immersivefluids.event;
 import github.jodevnull.immersivefluids.features.CachedWater;
 import github.jodevnull.immersivefluids.recipe.PickupWaterHandler;
 import net.minecraft.server.level.ServerLevel;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
-@EventBusSubscriber
+@Mod.EventBusSubscriber
 public class ModPlayerEvents
 {
     public static void register() {}
