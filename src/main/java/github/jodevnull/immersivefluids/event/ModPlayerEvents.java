@@ -1,7 +1,7 @@
 package github.jodevnull.immersivefluids.event;
 
 import github.jodevnull.immersivefluids.features.CachedWater;
-import github.jodevnull.immersivefluids.recipe.PickupWaterHandler;
+import github.jodevnull.immersivefluids.recipe.FillRecipeHandler;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -32,7 +32,7 @@ public class ModPlayerEvents
         if (!CachedWater.isWater(state) || CachedWater.isNatural(state))
             return;
 
-        if (PickupWaterHandler.handle((ServerLevel) event.getLevel(), player, hand, pos)) {
+        if (FillRecipeHandler.handle((ServerLevel) event.getLevel(), player, hand, pos)) {
             event.setCanceled(true);
         }
     }

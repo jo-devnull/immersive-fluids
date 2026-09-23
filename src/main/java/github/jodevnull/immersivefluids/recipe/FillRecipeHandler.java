@@ -8,7 +8,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 
-public class PickupWaterHandler
+public class FillRecipeHandler
 {
     public static boolean handle(ServerLevel level, Player player, InteractionHand hand, BlockPos pos) {
         final var input = player.getItemInHand(hand);
@@ -16,7 +16,7 @@ public class PickupWaterHandler
 
         final var recipeOpt =
             level.getRecipeManager().getRecipeFor(
-                ModRecipeTypes.PICKUP_WATER.get(),
+                ModRecipeTypes.FILL.get(),
                 container,
                 level
             );

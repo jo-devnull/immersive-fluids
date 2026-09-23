@@ -1,5 +1,5 @@
 {
-  "type": "immersivefluids:pickup_water",
+  "type": "immersivefluids:fill",
   "amount": 1,
   "container": {
     "item": "minecraft:glass_bottle"

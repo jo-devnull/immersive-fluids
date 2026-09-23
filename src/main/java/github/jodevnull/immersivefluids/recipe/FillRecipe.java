@@ -27,7 +27,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Objects;
 
 @MethodsReturnNonnullByDefault
-public class PickupWaterRecipe implements Recipe<SimpleContainer>
+public class FillRecipe implements Recipe<SimpleContainer>
 {
     private final ResourceLocation id;
     private final String group;
@@ -35,7 +35,7 @@ public class PickupWaterRecipe implements Recipe<SimpleContainer>
     private final Ingredient input;
     private final ItemStack output;
 
-    public PickupWaterRecipe(ResourceLocation id, String group, int amount, Ingredient input, ItemStack output) {
+    public FillRecipe(ResourceLocation id, String group, int amount, Ingredient input, ItemStack output) {
         this.id = id;
         this.group = group;
         this.amount = amount;
@@ -102,12 +102,12 @@ public class PickupWaterRecipe implements Recipe<SimpleContainer>
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return ModRecipeSerializers.PICKUP_WATER.get();
+        return ModRecipeSerializers.FILL.get();
     }
 
     @Override
     public RecipeType<?> getType() {
-        return ModRecipeTypes.PICKUP_WATER.get();
+        return ModRecipeTypes.FILL.get();
     }
 
     @Override
@@ -115,7 +115,7 @@ public class PickupWaterRecipe implements Recipe<SimpleContainer>
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        PickupWaterRecipe that = (PickupWaterRecipe) o;
+        FillRecipe that = (FillRecipe) o;
 
         if (!getId().equals(that.getId())) return false;
         if (!getGroup().equals(that.getGroup())) return false;
@@ -136,12 +136,12 @@ public class PickupWaterRecipe implements Recipe<SimpleContainer>
     }
 
     @ParametersAreNonnullByDefault
-    public static class Serializer implements RecipeSerializer<PickupWaterRecipe>
+    public static class Serializer implements RecipeSerializer<FillRecipe>
     {
         public Serializer() {}
 
         @Override
-        public PickupWaterRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
+        public FillRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
             final var group = GsonHelper.getAsString(json, "group", "");
             final var amount = GsonHelper.getAsInt(json, "amount");
             final var container = Ingredient.fromJson(GsonHelper.getAsJsonObject(json, "container"));
@@ -153,22 +153,22 @@ public class PickupWaterRecipe implements Recipe<SimpleContainer>
             if (result.isEmpty())
                 throw new JsonParseException("No output for pickup water recipe");
 
-            return new PickupWaterRecipe(recipeId, group, amount, container, result);
+            return new FillRecipe(recipeId, group, amount, container, result);
         }
 
         @Nullable
         @Override
-        public PickupWaterRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
+        public FillRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
             String group = buffer.readUtf(32767);
             int amount = buffer.readInt();
             Ingredient input = Ingredient.fromNetwork(buffer);
             ItemStack output = buffer.readItem();
 
-            return new PickupWaterRecipe(recipeId, group, amount, input, output);
+            return new FillRecipe(recipeId, group, amount, input, output);
         }
 
         @Override
-        public void toNetwork(FriendlyByteBuf buffer, PickupWaterRecipe recipe) {
+        public void toNetwork(FriendlyByteBuf buffer, FillRecipe recipe) {
             buffer.writeUtf(recipe.group);
             buffer.writeInt(recipe.amount);
             recipe.input.toNetwork(buffer);
