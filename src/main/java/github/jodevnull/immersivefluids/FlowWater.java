@@ -1,16 +1,23 @@
 package github.jodevnull.immersivefluids;
 
+import com.simibubi.create.foundation.fluid.FluidHelper;
 import github.jodevnull.immersivefluids.features.CachedWater;
 import github.jodevnull.immersivefluids.features.FlowFeature;
 import github.jodevnull.immersivefluids.features.FlowFeatureInfinite;
 import github.jodevnull.immersivefluids.features.PuddleFeature;
+import github.jodevnull.immersivefluids.properties.WaterUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlockContainer;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+
+import static github.jodevnull.immersivefluids.WaterPhysics.WATER_LEVEL;
 
 
 public class FlowWater {
@@ -30,41 +37,25 @@ public class FlowWater {
             CachedWater.setup(FlowWater.world, fluidPos);
             int centerLevel = CachedWater.getWaterLevel(fluidPos);
 
-            if (world.getBlockState(fluidPos).getBlock() instanceof LiquidBlockContainer) {
+            final var blockState = world.getBlockState(fluidPos);
+
+            if ((blockState.getBlock() instanceof LiquidBlockContainer) && !WaterUtils.hasWaterLevel(blockState))
                 return;
-            }
 
-            if ((CachedWater.getBlockState(fluidPos.below()).is(Blocks.LAVA))) {
+            if (CachedWater.isNatural(blockState))
+                return;
+
+            if ((CachedWater.getBlockState(fluidPos.below()).is(Blocks.LAVA)))
                 world.setBlock(fluidPos.below(), Blocks.OBSIDIAN.defaultBlockState(), 11, 11);
-            }
 
-            if ((CachedWater.getBlockState(fluidPos.below()).canBeReplaced(Fluids.WATER)) && isNotFull(CachedWater.getWaterLevel(fluidPos.below()))) {
+            final BlockState belowState = CachedWater.getBlockState(fluidPos.below());
+
+            if ((belowState.hasProperty(WATER_LEVEL) || belowState.canBeReplaced(Fluids.WATER)) && isNotFull(CachedWater.getWaterLevel(fluidPos.below()))) {
                 CachedWater.setWaterLevel(0, fluidPos);
                 CachedWater.addWater(centerLevel, fluidPos.below());
             } else {
                 equalizeWater(fluidPos, centerLevel, world);
             }
-
-            //Infinite Water supported code:
-/*            if (CachedWater.isInfinite(fluidPos)) {
-                infiniteWaterFlow(world, fluidPos, state);
-                //System.out.println("a");
-            }
-            else {
-*//*                if(CachedWater.isInfinite(fluidPos.below())) {
-                    CachedWater.setWaterLevel(0, fluidPos);
-                }*//*
-                if ((CachedWater.getBlockState(fluidPos.below()).canBeReplaced(Fluids.WATER)) && isNotFull(CachedWater.getWaterLevel(fluidPos.below()))) {
-                    CachedWater.setWaterLevel(0, fluidPos);
-                    CachedWater.addWater(centerLevel, fluidPos.below());
-                } else {
-                    equalizeWater(fluidPos, centerLevel, world);
-                }
-            }*/
-
-
-
-            //CachedWater.unlock();
         }
     }
 
@@ -138,7 +129,6 @@ public class FlowWater {
 
 
     public static void equalizeWater(BlockPos center, int level, LevelAccessor world) {
-
         int radius = 2;
         int diameter = (radius * 2) + 1;
         int[][] data = new int[diameter][diameter];

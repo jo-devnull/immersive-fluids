@@ -3,16 +3,14 @@ package github.jodevnull.immersivefluids.features;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import github.jodevnull.immersivefluids.WaterPhysics;
 import github.jodevnull.immersivefluids.properties.WaterProperties;
+import github.jodevnull.immersivefluids.properties.WaterUtils;
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.BucketPickup;
-import net.minecraft.world.level.block.LiquidBlockContainer;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.chunk.LevelChunkSection;
@@ -23,8 +21,7 @@ import java.util.Map;
 import java.util.function.LongToIntFunction;
 
 import static github.jodevnull.immersivefluids.WaterPhysics.WATER_LEVEL;
-import static github.jodevnull.immersivefluids.properties.WaterProperties.ISFINITE;
-import static github.jodevnull.immersivefluids.properties.WaterProperties.EVAPORATION;
+import static github.jodevnull.immersivefluids.properties.WaterProperties.*;
 
 public class CachedWater {
 
@@ -44,12 +41,12 @@ public class CachedWater {
         return state.hasProperty(EVAPORATION) && state.getValue(EVAPORATION) == 0;
     }
 
-    public static boolean isNaturalWater(BlockState state) {
-        return FluidHelper.isWater(state.getFluidState().getType()) && isNatural(state);
-    }
-
     public static boolean isNatural(BlockPos pos) {
         return isNatural(world.getBlockState(pos));
+    }
+
+    public static boolean isNaturalWater(BlockState state) {
+        return FluidHelper.isWater(state.getFluidState().getType()) && isNatural(state);
     }
 
     public static int getWaterLevel(BlockPos ipos) {
@@ -123,7 +120,10 @@ public class CachedWater {
 
 
     public static boolean isWater(BlockState state) {
-        return !state.isAir() && (state.getFluidState() != Fluids.EMPTY.defaultFluidState()) && !state.hasProperty(BlockStateProperties.WATERLOGGED);
+        return !state.isAir()
+            && (state.getFluidState() != Fluids.EMPTY.defaultFluidState())
+            && !state.hasProperty(BlockStateProperties.WATERLOGGED)
+            && !state.hasProperty(WATER_LEVEL);
     }
 
     private static final Long2ByteMap queuedWaterLevels = new Long2ByteOpenHashMap();
@@ -148,31 +148,54 @@ public class CachedWater {
         assert prev.isAir() || prev.hasProperty(WaterPhysics.WATER_LEVEL) || !prev.getFluidState().isEmpty() || level < 0;
 
         if (prev.hasProperty(WaterPhysics.WATER_LEVEL)) {
-            setBlockStateNoNeighbors(pos, prev, prev.setValue(WaterPhysics.WATER_LEVEL, level));
+            BlockState newState = prev.setValue(WATER_LEVEL, level);
+
+            // blocks that probably only survives underwater (like kelp)
+            // if (level == 0 && (prev.getBlock() instanceof LiquidBlockContainer block)
+            //     && !WaterUtils.canBeWaterlogged(prev)
+            //     && !block.canPlaceLiquid(world, pos, prev, Fluids.WATER)) {
+            // }
+
+            // extinguish
+            if (level > 0 && prev.hasProperty(BlockStateProperties.LIT) && prev.getValue(BlockStateProperties.LIT))
+                newState = newState.setValue(BlockStateProperties.LIT, false);
+
+            if (WaterUtils.canBeWaterlogged(prev))
+                newState = newState.setValue(BlockStateProperties.WATERLOGGED, level == 8);
+
+            if (prev.hasProperty(EVAPORATION))
+                newState = newState.setValue(EVAPORATION, MAX_EVAPORATION);
+
+            setBlockStateNoNeighbors(pos, prev, newState);
         } else if (level == 0) {
             setBlockStateNoNeighbors(pos, prev, Blocks.AIR.defaultBlockState());
         } else if (level >= 0) {
             if (level <= 8) {
                 if (level == 8) {
                     if (!(prev.getBlock() instanceof LiquidBlockContainer))
-                        setBlockStateNoNeighbors(pos, prev, WaterProperties.interacted(Blocks.WATER.defaultBlockState()));
+                        setBlockStateNoNeighbors(pos, prev, Blocks.WATER
+                            .defaultBlockState()
+                            .setValue(EVAPORATION, MAX_EVAPORATION));
                 } else {
                     if (!(prev.getBlock() instanceof BucketPickup))
                         world.destroyBlock(pos, true);
 
-                    setBlockStateNoNeighbors(pos, prev, WaterProperties.interacted(Fluids.FLOWING_WATER.getFlowing(level, false).createLegacyBlock()));
+                    setBlockStateNoNeighbors(pos, prev, Fluids.FLOWING_WATER
+                        .getFlowing(level, false)
+                        .createLegacyBlock()
+                        .setValue(EVAPORATION, WaterProperties.MAX_EVAPORATION));
                 }
             }
         }
     }
-
 
     public static void addWater(int level, BlockPos pos) {
         int existingWater = getWaterLevel(pos);
         if (existingWater == -1) throw new IllegalStateException("Tried to add water to a full block");
 
         int totalWater = existingWater + level;
-        if (totalWater > 8 && !isNatural(world.getBlockState(pos))) {
+
+        if (totalWater > 8) {
             addWater(totalWater - 8, pos.above());
             setWaterLevel(8, pos);
         } else {
@@ -197,10 +220,10 @@ public class CachedWater {
                 .getBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
     }
 
-    public static BlockState setBlockStateSection(BlockPos pos, BlockState state) {
+    public static void setBlockStateSection(BlockPos pos, BlockState state) {
         ((ServerLevel) world).getChunkSource().blockChanged(pos);
-        return sections.computeIfAbsent(SectionPos.of(pos), CachedWater::getChunkSection)
-                .setBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, state, false);
+        sections.computeIfAbsent(SectionPos.of(pos), CachedWater::getChunkSection)
+            .setBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, state, false);
     }
 
     public static LevelChunkSection getChunkSection(SectionPos pos) {
@@ -218,7 +241,6 @@ public class CachedWater {
         if (!state.getFluidState().isEmpty() && useSections) {
             setBlockStateSection(pos, state);
             world.sendBlockUpdated(pos, oldState, state, Block.UPDATE_IMMEDIATE | Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
-
             fluidsToUpdate.put(pos, state);
         } else if (state.isAir()) {
             setBlockStateSection(pos, state);
@@ -232,50 +254,6 @@ public class CachedWater {
 
     public static void setup(ServerLevel world, BlockPos fluidPos) {
         CachedWater.world = world;
-/*
-        int gmr = 7; //generalMaxRange, the maximum range that will ever be used in checks
-
-        BlockPos[] cornerList = new BlockPos[8];
-
-        BlockPos c11 = fluidPos.add(gmr, 0, gmr);
-        cornerList[0] = c11;
-        BlockPos c12 = fluidPos.add(-gmr, 0, gmr);
-        cornerList[1] = c12;
-        BlockPos c13 = fluidPos.add(gmr, 0, -gmr);
-        cornerList[2] = c13;
-        BlockPos c14 = fluidPos.add(-gmr, 0, -gmr);
-        cornerList[3] = c14;
-
-        BlockPos c21 = fluidPos.add(gmr, -1, gmr);
-        cornerList[4] = c21;
-        BlockPos c22 = fluidPos.add(-gmr, -1, gmr);
-        cornerList[5] = c22;
-        BlockPos c23 = fluidPos.add(gmr, -1, -gmr);
-        cornerList[6] = c23;
-        BlockPos c24 = fluidPos.add(-gmr, -1, -gmr);
-        cornerList[7] = c24;
-
-        int smallestX = Integer.MAX_VALUE;
-        int smallestY = Integer.MAX_VALUE;
-        int smallestZ = Integer.MAX_VALUE;
-
-        for (BlockPos blockPos : cornerList) {
-            smallestX = Math.min(smallestX, blockPos.getX());
-            smallestY = Math.min(smallestY, blockPos.getY());
-            smallestZ = Math.min(smallestZ, blockPos.getZ());
-        }
-
-        xChunkA = smallestX / 16;
-        yChunkA = smallestY / 16;
-        zChunkA = smallestZ / 16;
-
-        for (BlockPos blockPos : cornerList) {
-            Chunk chunk = world.getChunk(blockPos);
-            ChunkSection section = chunk.getSection(chunk.getSectionIndex(blockPos.getY()));
-
-            cachedSections[getSectionId(blockPos)] = section;
-        }
-        */
     }
 
     public static void beforeTick(ServerLevel serverWorld) {
@@ -293,27 +271,9 @@ public class CachedWater {
      */
     private static void updateNeighbor(BlockPos pos, Block sourceBlock, BlockPos neighborPos) {
         BlockState neighborState = getBlockState(pos);
-        if (!neighborState.getFluidState().isEmpty()) {
+
+        if (!neighborState.getFluidState().isEmpty() && !isNatural(neighborState)) {
             fluidsToUpdate.put(pos, neighborState);
-        } else {
-            //TODO try to reimplement this later on
-/*            // Vanilla behaviour
-            try {
-                neighborState.neighborChanged(world, pos, sourceBlock, neighborPos, false);
-            } catch (Throwable var8) {
-                CrashReport crashReport = CrashReport.forThrowable(var8, "Exception while updating neighbours");
-                CrashReportCategory crashReportSection = crashReport.addCategory("Block being updated");
-                crashReportSection.setDetail("Source block type", (CrashReportDetail<String>)(() -> {
-                    Registries.BLOCK.
-                    try {
-                        return String.format("ID #%s (%s // %s)", Registry.BLOCK.getKey(sourceBlock), sourceBlock.getDescriptionId(), sourceBlock.getClass().getCanonicalName());
-                    } catch (Throwable var2x) {
-                        return "ID #" + Registry.BLOCK.getKey(sourceBlock);
-                    }
-                }));
-                CrashReportCategory.populateBlockDetails(crashReportSection, world, pos, neighborState);
-                throw new ReportedException(crashReport);
-            }*/
         }
     }
 

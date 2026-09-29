@@ -8,15 +8,22 @@
     "MixinServerLevel",
     "create.MixinFluidTank",
     "create.MixinOpenEndedPipe",
-    "fluid.BucketMixin",
     "fluid.FlowingLavaMixin",
-    "fluid.FlowingMixin",
     "fluid.LavaFluidMixin",
-    "fluid.LiquidBlockMixin",
+    "fluid.MixinFlowingFluid",
+    "fluid.MixinFluid",
+    "fluid.MixinLiquidBlock",
     "fluid.MixinPistonBaseBlock",
+    "fluid.MixinWaterFluid",
     "fluid.ServerWorldMixin",
-    "fluid.WaterFluidMixin",
-    "fluid.WaterLoggableMixin"
+    "fluid.WaterFluidSourceMixin",
+    "item.MixinBucketItem",
+    "waterlogged.MixinBlockBehaviourWaterLog",
+    "waterlogged.MixinBlockItemPlacement",
+    "waterlogged.MixinBlockPlacement",
+    "waterlogged.MixinBlockStateBase",
+    "waterlogged.MixinStateDefinitionAny",
+    "waterlogged.MixinStateDefinitionBuilder"
   ],
   "injectors": {
     "defaultRequire": 1

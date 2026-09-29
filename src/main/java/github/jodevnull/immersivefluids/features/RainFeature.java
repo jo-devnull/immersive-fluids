@@ -15,7 +15,7 @@ public class RainFeature
 
         return state.hasProperty(EVAPORATION) && state.getValue(EVAPORATION) > 0
             && FluidHelper.isWater(state.getFluidState().getType()) // is water
-            && CachedWater.getWaterLevel(pos) == 1  // min level
-            && !world.isRainingAt(pos);             // not raining
+            && CachedWater.getWaterLevel(pos) < 5  // min level
+            && !world.isRainingAt(pos);            // not raining
     }
 }

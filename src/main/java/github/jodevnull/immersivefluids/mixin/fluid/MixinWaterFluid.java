@@ -7,7 +7,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(net.minecraft.world.level.material.WaterFluid.class)
-public class WaterFluidMixin {
+public class MixinWaterFluid
+{
     @Inject(at = @At("HEAD"), method = "canConvertToSource", cancellable = true)
     private void isInfinite(CallbackInfoReturnable<Boolean> bruh) {
         bruh.setReturnValue(false);
