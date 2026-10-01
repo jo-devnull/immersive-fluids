@@ -2,7 +2,6 @@ package github.jodevnull.immersivefluids.features;
 
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import github.jodevnull.immersivefluids.WaterPhysics;
-import github.jodevnull.immersivefluids.properties.WaterProperties;
 import github.jodevnull.immersivefluids.properties.WaterUtils;
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
@@ -20,11 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.LongToIntFunction;
 
-import static github.jodevnull.immersivefluids.WaterPhysics.WATER_LEVEL;
-import static github.jodevnull.immersivefluids.properties.WaterProperties.*;
+import static github.jodevnull.immersivefluids.properties.WaterUtils.ISFINITE;
 
 public class CachedWater {
-
     public static boolean useSections = true;
     public static boolean useCache = true;
     private static final Long2ByteMap cache = new Long2ByteOpenHashMap();
@@ -38,7 +35,7 @@ public class CachedWater {
     }
 
     public static boolean isNatural(BlockState state) {
-        return state.hasProperty(EVAPORATION) && state.getValue(EVAPORATION) == 0;
+        return state.hasProperty(WaterUtils.ISNATURAL) && state.getValue(WaterUtils.ISNATURAL);
     }
 
     public static boolean isNatural(BlockPos pos) {
@@ -79,8 +76,10 @@ public class CachedWater {
         if (state.hasProperty(ISFINITE) && !state.getValue(ISFINITE)) {
             return (byte) -2;
         }
-        if (state.hasProperty(WATER_LEVEL))
-            return state.getValue(WATER_LEVEL);
+
+        // TODO: implement this with fluidlogged
+        // if (state.hasProperty(WATER_LEVEL))
+        //     return state.getValue(WATER_LEVEL);
 
         FluidState fluidstate = state.getFluidState();
         if (fluidstate == Fluids.EMPTY.defaultFluidState() || state.getBlock() == Blocks.LAVA)
@@ -102,8 +101,9 @@ public class CachedWater {
         if (state.hasProperty(ISFINITE) && !state.getValue(ISFINITE)) {
             return (byte) 1;
         }
-        if (state.hasProperty(WATER_LEVEL))
-            return state.getValue(WATER_LEVEL);
+        // TODO: implement this with fluidlogged
+        // if (state.hasProperty(WATER_LEVEL))
+        //     return state.getValue(WATER_LEVEL);
 
         FluidState fluidstate = state.getFluidState();
         if (fluidstate == Fluids.EMPTY.defaultFluidState())
@@ -121,9 +121,9 @@ public class CachedWater {
 
     public static boolean isWater(BlockState state) {
         return !state.isAir()
-            && (state.getFluidState() != Fluids.EMPTY.defaultFluidState())
+            && (FluidHelper.isWater(state.getFluidState().getType()))
             && !state.hasProperty(BlockStateProperties.WATERLOGGED)
-            && !state.hasProperty(WATER_LEVEL);
+            ; // && !state.hasProperty(WATER_LEVEL); // FIXME
     }
 
     private static final Long2ByteMap queuedWaterLevels = new Long2ByteOpenHashMap();
@@ -145,29 +145,26 @@ public class CachedWater {
     private static void setWaterLevelDirect(int level, BlockPos pos) {
         BlockState prev = getBlockState(pos);
 
-        assert prev.isAir() || prev.hasProperty(WaterPhysics.WATER_LEVEL) || !prev.getFluidState().isEmpty() || level < 0;
+        assert prev.isAir() /*|| FIXME prev.hasProperty(WaterPhysics.WATER_LEVEL)*/ || !prev.getFluidState().isEmpty() || level < 0;
 
-        if (prev.hasProperty(WaterPhysics.WATER_LEVEL)) {
-            BlockState newState = prev.setValue(WATER_LEVEL, level);
+        // FIXME: implement this with fluidlogged
+        // if (prev.hasProperty(WaterPhysics.WATER_LEVEL)) {
+        //     BlockState newState = prev.setValue(WATER_LEVEL, level);
+        //
+        //     // extinguish
+        //     if (level > 0 && prev.hasProperty(BlockStateProperties.LIT) && prev.getValue(BlockStateProperties.LIT))
+        //         newState = newState.setValue(BlockStateProperties.LIT, false);
+        //
+        //     if (WaterUtils.canBeWaterlogged(prev))
+        //         newState = newState.setValue(BlockStateProperties.WATERLOGGED, level == 8);
+        //
+        //     if (prev.hasProperty(EVAPORATION))
+        //         newState = newState.setValue(EVAPORATION, MAX_EVAPORATION);
+        //
+        //     setBlockStateNoNeighbors(pos, prev, newState);
+        // }
 
-            // blocks that probably only survives underwater (like kelp)
-            // if (level == 0 && (prev.getBlock() instanceof LiquidBlockContainer block)
-            //     && !WaterUtils.canBeWaterlogged(prev)
-            //     && !block.canPlaceLiquid(world, pos, prev, Fluids.WATER)) {
-            // }
-
-            // extinguish
-            if (level > 0 && prev.hasProperty(BlockStateProperties.LIT) && prev.getValue(BlockStateProperties.LIT))
-                newState = newState.setValue(BlockStateProperties.LIT, false);
-
-            if (WaterUtils.canBeWaterlogged(prev))
-                newState = newState.setValue(BlockStateProperties.WATERLOGGED, level == 8);
-
-            if (prev.hasProperty(EVAPORATION))
-                newState = newState.setValue(EVAPORATION, MAX_EVAPORATION);
-
-            setBlockStateNoNeighbors(pos, prev, newState);
-        } else if (level == 0) {
+        if (level == 0) {
             setBlockStateNoNeighbors(pos, prev, Blocks.AIR.defaultBlockState());
         } else if (level >= 0) {
             if (level <= 8) {
@@ -175,7 +172,8 @@ public class CachedWater {
                     if (!(prev.getBlock() instanceof LiquidBlockContainer))
                         setBlockStateNoNeighbors(pos, prev, Blocks.WATER
                             .defaultBlockState()
-                            .setValue(EVAPORATION, MAX_EVAPORATION));
+                            .setValue(WaterUtils.ISNATURAL, false)
+                            /*FIXME.setValue(EVAPORATION, MAX_EVAPORATION)*/);
                 } else {
                     if (!(prev.getBlock() instanceof BucketPickup))
                         world.destroyBlock(pos, true);
@@ -183,7 +181,8 @@ public class CachedWater {
                     setBlockStateNoNeighbors(pos, prev, Fluids.FLOWING_WATER
                         .getFlowing(level, false)
                         .createLegacyBlock()
-                        .setValue(EVAPORATION, WaterProperties.MAX_EVAPORATION));
+                        .setValue(WaterUtils.ISNATURAL, false)
+                        /*FIXME.setValue(EVAPORATION, WaterProperties.MAX_EVAPORATION)*/);
                 }
             }
         }

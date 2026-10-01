@@ -9,7 +9,6 @@ import github.jodevnull.immersivefluids.registry.ModRecipeTypes;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -23,7 +22,6 @@ public class WaterPhysics
 {
     public static final String MODID = "immersivefluids";
     public static final Logger LOGGER = LogUtils.getLogger();
-    public static final IntegerProperty WATER_LEVEL = IntegerProperty.create("water_level", 0, 8);
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     public WaterPhysics(FMLJavaModLoadingContext context) {
@@ -33,8 +31,6 @@ public class WaterPhysics
         final var modEventBus = context.getModEventBus();
         LOGGER.info("Immersive Fluids loaded!");
 
-        ModConfig.reload();
-        github.jodevnull.immersivefluids.ModConfig.reload();
         MinecraftForge.EVENT_BUS.addListener(this::registerCommand);
         ModRecipeTypes.RECIPE_TYPES.register(modEventBus);
         ModRecipeSerializers.RECIPE_SERIALIZERS.register(modEventBus);

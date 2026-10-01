@@ -2,7 +2,7 @@ package github.jodevnull.immersivefluids.mixin.fluid;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import github.jodevnull.immersivefluids.properties.WaterProperties;
+import github.jodevnull.immersivefluids.properties.WaterUtils;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -18,8 +18,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static github.jodevnull.immersivefluids.properties.WaterProperties.EVAPORATION;
-
 @Mixin(LiquidBlock.class)
 public abstract class MixinLiquidBlock extends Block implements BucketPickup
 {
@@ -33,8 +31,8 @@ public abstract class MixinLiquidBlock extends Block implements BucketPickup
 
     @Inject(at = @At("TAIL"), method = "createBlockStateDefinition")
     protected void appendProperties(StateDefinition.Builder<Fluid, FluidState> builder, CallbackInfo Ci) {
-        builder.add(WaterProperties.ISFINITE);
-        builder.add(EVAPORATION);
+        builder.add(WaterUtils.ISFINITE);
+        builder.add(WaterUtils.ISNATURAL);
     }
 
     @WrapOperation(
@@ -43,7 +41,9 @@ public abstract class MixinLiquidBlock extends Block implements BucketPickup
     )
     public void ifc_injectProperties(LiquidBlock instance, BlockState blockState, Operation<Void> original) {
         this.registerDefaultState(
-            this.stateDefinition.any().setValue(LEVEL, 0).setValue(EVAPORATION, 0)
+            this.stateDefinition.any()
+                .setValue(LEVEL, 0)
+                .setValue(WaterUtils.ISNATURAL, true)
         );
     }
 
@@ -53,7 +53,7 @@ public abstract class MixinLiquidBlock extends Block implements BucketPickup
     )
     public void ifc_injectProperties2(LiquidBlock instance, BlockState blockState, Operation<Void> original) {
         this.registerDefaultState(
-            this.stateDefinition.any().setValue(LEVEL, 0).setValue(EVAPORATION, 0)
+            this.stateDefinition.any().setValue(LEVEL, 0).setValue(WaterUtils.ISNATURAL, true)
         );
     }
 }
