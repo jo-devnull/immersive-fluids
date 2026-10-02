@@ -2,6 +2,7 @@ package github.jodevnull.immersivefluids.mixin.rain;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import github.jodevnull.immersivefluids.WaterConfig;
+import github.jodevnull.immersivefluids.WaterUtils;
 import github.jodevnull.immersivefluids.core.CachedWater;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -56,7 +57,7 @@ public abstract class MixinServerLevel extends Level
         final var state = getBlockState(blockpos);
         final var below = getBlockState(blockpos.below());
 
-        if (CachedWater.isNaturalWater(below) || below.is(Blocks.SNOW))
+        if (WaterUtils.isNatural(below) || below.is(Blocks.SNOW))
             return;
 
         if (state.is(Blocks.AIR)) {

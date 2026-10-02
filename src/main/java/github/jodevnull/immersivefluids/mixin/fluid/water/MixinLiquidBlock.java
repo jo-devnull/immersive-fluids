@@ -1,5 +1,6 @@
 package github.jodevnull.immersivefluids.mixin.fluid.water;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import github.jodevnull.immersivefluids.WaterUtils;
@@ -29,31 +30,18 @@ public abstract class MixinLiquidBlock extends Block implements BucketPickup
         super(properties);
     }
 
-    @Inject(at = @At("TAIL"), method = "createBlockStateDefinition")
-    protected void appendProperties(StateDefinition.Builder<Fluid, FluidState> builder, CallbackInfo Ci) {
-        builder.add(WaterUtils.ISFINITE);
-        builder.add(WaterUtils.ISNATURAL);
-    }
-
     @WrapOperation(
-        method = "<init>(Ljava/util/function/Supplier;Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V",
+        method = "<init>*",
         at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/LiquidBlock;registerDefaultState(Lnet/minecraft/world/level/block/state/BlockState;)V")
     )
     public void ifc_injectProperties(LiquidBlock instance, BlockState blockState, Operation<Void> original) {
         this.registerDefaultState(
-            this.stateDefinition.any()
-                .setValue(LEVEL, 0)
-                .setValue(WaterUtils.ISNATURAL, true)
+            this.stateDefinition.any().setValue(LEVEL, 0).setValue(WaterUtils.ISNATURAL, true)
         );
     }
 
-    @WrapOperation(
-        method = "<init>(Lnet/minecraft/world/level/material/FlowingFluid;Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)V",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/LiquidBlock;registerDefaultState(Lnet/minecraft/world/level/block/state/BlockState;)V")
-    )
-    public void ifc_injectProperties2(LiquidBlock instance, BlockState blockState, Operation<Void> original) {
-        this.registerDefaultState(
-            this.stateDefinition.any().setValue(LEVEL, 0).setValue(WaterUtils.ISNATURAL, true)
-        );
+    @Inject(at = @At("TAIL"), method = "createBlockStateDefinition")
+    protected void appendProperties(StateDefinition.Builder<Fluid, FluidState> builder, CallbackInfo Ci) {
+        builder.add(WaterUtils.ISNATURAL);
     }
 }

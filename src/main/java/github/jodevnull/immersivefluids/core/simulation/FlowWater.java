@@ -1,5 +1,6 @@
 package github.jodevnull.immersivefluids.core.simulation;
 
+import github.jodevnull.immersivefluids.WaterUtils;
 import github.jodevnull.immersivefluids.core.CachedWater;
 import github.jodevnull.immersivefluids.core.features.FlowFeature;
 import github.jodevnull.immersivefluids.core.features.FlowFeatureInfinite;
@@ -14,7 +15,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 
 public class FlowWater {
-    public static int worldMinY = -64;
+    public static final int worldMinY = -64;
     public static BlockPos ce24;
     public static ServerLevel world;
     private FlowWater() {
@@ -35,7 +36,7 @@ public class FlowWater {
             if ((blockState.getBlock() instanceof LiquidBlockContainer))
                 return;
 
-            if (CachedWater.isNatural(blockState))
+            if (WaterUtils.isNatural(blockState))
                 return;
 
             if ((CachedWater.getBlockState(fluidPos.below()).is(Blocks.LAVA)))

@@ -1,6 +1,5 @@
 package github.jodevnull.immersivefluids.core;
 
-import com.simibubi.create.foundation.fluid.FluidHelper;
 import github.jodevnull.immersivefluids.WaterUtils;
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
@@ -10,7 +9,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -35,18 +33,6 @@ public class CachedWater
         return a;
     }
 
-    public static boolean isNatural(BlockState state) {
-        return state.hasProperty(WaterUtils.ISNATURAL) && state.getValue(WaterUtils.ISNATURAL);
-    }
-
-    public static boolean isNatural(BlockPos pos) {
-        return isNatural(world.getBlockState(pos));
-    }
-
-    public static boolean isNaturalWater(BlockState state) {
-        return FluidHelper.isWater(state.getFluidState().getType()) && isNatural(state);
-    }
-
     public static int getWaterLevel(BlockPos ipos) {
         LongToIntFunction func = pos -> {
             BlockState state = getBlockState(BlockPos.of(pos));
@@ -59,8 +45,8 @@ public class CachedWater
     }
 
     public static boolean isInfinite(BlockPos pos) {
-        BlockState state = getBlockState(pos);
-        return isNatural(state) || (state.hasProperty(ISFINITE) && !state.getValue(ISFINITE));
+        final BlockState state = getBlockState(pos);
+        return WaterUtils.isNatural(state) || (state.hasProperty(ISFINITE) && !state.getValue(ISFINITE));
     }
 
     public static boolean isNotFull(int waterLevel) {
@@ -74,57 +60,37 @@ public class CachedWater
     public static int getWaterLevelOfState(BlockState state) {
         if (state.isAir())
             return (byte) 0;
-        if (state.hasProperty(ISFINITE) && !state.getValue(ISFINITE)) {
-            return (byte) -2;
-        }
 
-        // TODO: implement this with fluidlogged
-        // if (state.hasProperty(WATER_LEVEL))
-        //     return state.getValue(WATER_LEVEL);
+        if (state.hasProperty(ISFINITE) && !state.getValue(ISFINITE))
+            return (byte) -2;
 
         FluidState fluidstate = state.getFluidState();
+
         if (fluidstate == Fluids.EMPTY.defaultFluidState() || state.getBlock() == Blocks.LAVA)
             return (byte) -1;
 
-        int waterLevel;
-        if (fluidstate.isSource()) {
-            waterLevel = 8;
-        } else {
-            waterLevel = fluidstate.getAmount();
-        }
-        return waterLevel;
+        return fluidstate.getAmount();
     }
 
     public static int getWaterLevelForPF(BlockPos pos) {
         BlockState state = getBlockState(pos);
+
         if (state.isAir())
             return (byte) 0;
-        if (state.hasProperty(ISFINITE) && !state.getValue(ISFINITE)) {
+
+        if (state.hasProperty(ISFINITE) && !state.getValue(ISFINITE))
             return (byte) 1;
-        }
-        // TODO: implement this with fluidlogged
-        // if (state.hasProperty(WATER_LEVEL))
-        //     return state.getValue(WATER_LEVEL);
 
         FluidState fluidstate = state.getFluidState();
+
         if (fluidstate == Fluids.EMPTY.defaultFluidState())
             return (byte) -1;
 
-        int waterLevel;
-        if (fluidstate.isSource()) {
-            waterLevel = 8;
-        } else {
-            waterLevel = fluidstate.getAmount();
-        }
-        return waterLevel;
+        return fluidstate.getAmount();
     }
 
-
     public static boolean isWater(BlockState state) {
-        return !state.isAir()
-            && (FluidHelper.isWater(state.getFluidState().getType()))
-            && !state.hasProperty(BlockStateProperties.WATERLOGGED)
-            ; // && !state.hasProperty(WATER_LEVEL); // FIXME
+        return state.is(Blocks.WATER);
     }
 
     private static final Long2ByteMap queuedWaterLevels = new Long2ByteOpenHashMap();
@@ -146,44 +112,19 @@ public class CachedWater
     private static void setWaterLevelDirect(int level, BlockPos pos) {
         BlockState prev = getBlockState(pos);
 
-        assert prev.isAir() /*|| FIXME prev.hasProperty(WaterPhysics.WATER_LEVEL)*/ || !prev.getFluidState().isEmpty() || level < 0;
-
         // FIXME: implement this with fluidlogged
-        // if (prev.hasProperty(WaterPhysics.WATER_LEVEL)) {
-        //     BlockState newState = prev.setValue(WATER_LEVEL, level);
-        //
-        //     // extinguish
-        //     if (level > 0 && prev.hasProperty(BlockStateProperties.LIT) && prev.getValue(BlockStateProperties.LIT))
-        //         newState = newState.setValue(BlockStateProperties.LIT, false);
-        //
-        //     if (WaterUtils.canBeWaterlogged(prev))
-        //         newState = newState.setValue(BlockStateProperties.WATERLOGGED, level == 8);
-        //
-        //     if (prev.hasProperty(EVAPORATION))
-        //         newState = newState.setValue(EVAPORATION, MAX_EVAPORATION);
-        //
-        //     setBlockStateNoNeighbors(pos, prev, newState);
-        // }
-
         if (level == 0) {
             setBlockStateNoNeighbors(pos, prev, Blocks.AIR.defaultBlockState());
         } else if (level >= 0) {
             if (level <= 8) {
                 if (level == 8) {
                     if (!(prev.getBlock() instanceof LiquidBlockContainer))
-                        setBlockStateNoNeighbors(pos, prev, Blocks.WATER
-                            .defaultBlockState()
-                            .setValue(WaterUtils.ISNATURAL, false)
-                            /*FIXME.setValue(EVAPORATION, MAX_EVAPORATION)*/);
+                        setBlockStateNoNeighbors(pos, prev, WaterUtils.getWater());
                 } else {
                     if (!(prev.getBlock() instanceof BucketPickup))
                         world.destroyBlock(pos, true);
 
-                    setBlockStateNoNeighbors(pos, prev, Fluids.FLOWING_WATER
-                        .getFlowing(level, false)
-                        .createLegacyBlock()
-                        .setValue(WaterUtils.ISNATURAL, false)
-                        /*FIXME.setValue(EVAPORATION, WaterProperties.MAX_EVAPORATION)*/);
+                    setBlockStateNoNeighbors(pos, prev, WaterUtils.getWater(level));
                 }
             }
         }
@@ -191,7 +132,9 @@ public class CachedWater
 
     public static void addWater(int level, BlockPos pos) {
         int existingWater = getWaterLevel(pos);
-        if (existingWater == -1) throw new IllegalStateException("Tried to add water to a full block");
+
+        if (existingWater == -1)
+            throw new IllegalStateException("Tried to add water to a full block");
 
         int totalWater = existingWater + level;
 
@@ -272,7 +215,7 @@ public class CachedWater
     private static void updateNeighbor(BlockPos pos, Block sourceBlock, BlockPos neighborPos) {
         BlockState neighborState = getBlockState(pos);
 
-        if (!neighborState.getFluidState().isEmpty() && !isNatural(neighborState)) {
+        if (!neighborState.getFluidState().isEmpty() && !WaterUtils.isNatural(neighborState)) {
             fluidsToUpdate.put(pos, neighborState);
         }
     }

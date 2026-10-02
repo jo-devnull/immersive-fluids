@@ -3,8 +3,8 @@ package github.jodevnull.immersivefluids.mixin.fluid.water;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import github.jodevnull.immersivefluids.WaterUtils;
 import github.jodevnull.immersivefluids.core.simulation.FlowWater;
-import github.jodevnull.immersivefluids.core.CachedWater;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -35,7 +35,7 @@ public class MixinFlowingFluid
         cancellable = true
     )
     private void tryFlow(Level level, BlockPos pos, FluidState state, CallbackInfo bruh) {
-        if (ifc$isWater(state.getType()) && !CachedWater.isNatural(level.getBlockState(pos))) {
+        if (ifc$isWater(state.getType()) && !WaterUtils.isNatural(level.getBlockState(pos))) {
             FlowWater.flowWater(level, pos, state);
             bruh.cancel();
         }
@@ -48,14 +48,14 @@ public class MixinFlowingFluid
     )
     private void getUpdatedState(Level level, BlockPos pos, BlockState blockState, CallbackInfoReturnable<FluidState> bruh) {
         FluidState fluidstate = blockState.getFluidState();
-        if (ifc$isWater(fluidstate.getType()) && !CachedWater.isNatural(level.getBlockState(pos))) {
+        if (ifc$isWater(fluidstate.getType()) && !WaterUtils.isNatural(level.getBlockState(pos))) {
             bruh.setReturnValue(Fluids.FLOWING_WATER.getFlowing(blockState.getFluidState().getAmount(), false));
         }
     }
 
     @WrapMethod(method = "getFlow")
     public Vec3 ifc$getFlow(BlockGetter blockReader, BlockPos pos, FluidState fluidState, Operation<Vec3> original) {
-        if (!CachedWater.isNatural(blockReader.getBlockState(pos)))
+        if (!WaterUtils.isNatural(blockReader.getBlockState(pos)))
             return Vec3.ZERO;
         else
             return original.call(blockReader, pos, fluidState);
@@ -63,7 +63,7 @@ public class MixinFlowingFluid
 
     @Inject(method = "canConvertToSource(Lnet/minecraft/world/level/material/FluidState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)Z", at=@At("HEAD"), cancellable = true, remap = false)
     private void ifc$canConvertToSource(FluidState state, Level level, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
-        cir.setReturnValue(CachedWater.isNatural(level.getBlockState(pos)));
+        cir.setReturnValue(WaterUtils.isNatural(level.getBlockState(pos)));
     }
 
     @Inject(method = "createFluidStateDefinition", at=@At("TAIL"))

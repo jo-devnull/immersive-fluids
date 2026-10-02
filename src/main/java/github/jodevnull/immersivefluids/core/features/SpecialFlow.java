@@ -8,7 +8,7 @@ import net.minecraft.server.level.ServerLevel;
 public class SpecialFlow {
 
 
-    static int maxPistonPushingDistance = 8;
+    static final int maxPistonPushingDistance = 8;
     public static boolean tryPushWater(ServerLevel level, BlockPos origin, Direction direction) {
         int maxDistance = maxPistonPushingDistance;
         BlockPos newPos = origin.relative(direction);

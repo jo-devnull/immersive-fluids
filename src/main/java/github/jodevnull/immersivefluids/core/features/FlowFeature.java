@@ -6,7 +6,7 @@ import net.minecraft.core.Direction;
 
 public class FlowFeature
 {
-    public static BlockPos[] blocks = new BlockPos[4];
+    public static final BlockPos[] blocks = new BlockPos[4];
 
     public static void execute(BlockPos center) {
         if (!Features.FLOW_FEATURE_ENABLED) return;

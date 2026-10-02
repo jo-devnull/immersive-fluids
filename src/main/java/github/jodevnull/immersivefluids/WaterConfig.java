@@ -4,6 +4,10 @@ public final class WaterConfig
 {
     // TODO: implement config
 
+    public static boolean fluidLifetimeEnabled() {
+        return true;
+    }
+
     public static boolean rainPuddlesEnabled() {
         // TODO: implement this
         return true;
