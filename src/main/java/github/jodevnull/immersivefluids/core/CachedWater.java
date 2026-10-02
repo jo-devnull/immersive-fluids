@@ -1,8 +1,7 @@
-package github.jodevnull.immersivefluids.features;
+package github.jodevnull.immersivefluids.core;
 
 import com.simibubi.create.foundation.fluid.FluidHelper;
-import github.jodevnull.immersivefluids.WaterPhysics;
-import github.jodevnull.immersivefluids.properties.WaterUtils;
+import github.jodevnull.immersivefluids.WaterUtils;
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
 import net.minecraft.core.BlockPos;
@@ -19,9 +18,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.LongToIntFunction;
 
-import static github.jodevnull.immersivefluids.properties.WaterUtils.ISFINITE;
+import static github.jodevnull.immersivefluids.WaterUtils.ISFINITE;
 
-public class CachedWater {
+public class CachedWater
+{
     public static boolean useSections = true;
     public static boolean useCache = true;
     private static final Long2ByteMap cache = new Long2ByteOpenHashMap();
@@ -29,6 +29,7 @@ public class CachedWater {
     public static Level world;
 
     public static int a = 0;
+
     public static int countMa() {
         a += 1;
         return a;

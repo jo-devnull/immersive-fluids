@@ -1,6 +1,6 @@
 package github.jodevnull.immersivefluids;
 
-public final class ModConfig
+public final class WaterConfig
 {
     // TODO: implement config
 

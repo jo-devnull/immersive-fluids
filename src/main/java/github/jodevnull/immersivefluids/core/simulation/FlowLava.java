@@ -1,4 +1,4 @@
-package github.jodevnull.immersivefluids;
+package github.jodevnull.immersivefluids.core.simulation;
 
 import java.util.ArrayList;
 import java.util.Arrays;

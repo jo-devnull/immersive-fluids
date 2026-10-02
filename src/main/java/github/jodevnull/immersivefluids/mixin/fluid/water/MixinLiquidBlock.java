@@ -1,8 +1,8 @@
-package github.jodevnull.immersivefluids.mixin.fluid;
+package github.jodevnull.immersivefluids.mixin.fluid.water;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import github.jodevnull.immersivefluids.properties.WaterUtils;
+import github.jodevnull.immersivefluids.WaterUtils;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.LiquidBlock;

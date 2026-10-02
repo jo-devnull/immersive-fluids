@@ -1,9 +1,9 @@
-package github.jodevnull.immersivefluids;
+package github.jodevnull.immersivefluids.core.simulation;
 
-import github.jodevnull.immersivefluids.features.CachedWater;
-import github.jodevnull.immersivefluids.features.FlowFeature;
-import github.jodevnull.immersivefluids.features.FlowFeatureInfinite;
-import github.jodevnull.immersivefluids.features.PuddleFeature;
+import github.jodevnull.immersivefluids.core.CachedWater;
+import github.jodevnull.immersivefluids.core.features.FlowFeature;
+import github.jodevnull.immersivefluids.core.features.FlowFeatureInfinite;
+import github.jodevnull.immersivefluids.core.features.PuddleFeature;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.LevelAccessor;

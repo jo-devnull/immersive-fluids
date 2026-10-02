@@ -1,4 +1,4 @@
-package github.jodevnull.immersivefluids.properties;
+package github.jodevnull.immersivefluids;
 
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 

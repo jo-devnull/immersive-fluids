@@ -3,7 +3,7 @@ package github.jodevnull.immersivefluids;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.logging.LogUtils;
-import github.jodevnull.immersivefluids.features.NonCachedWater;
+import github.jodevnull.immersivefluids.core.NonCachedWater;
 import github.jodevnull.immersivefluids.registry.ModRecipeSerializers;
 import github.jodevnull.immersivefluids.registry.ModRecipeTypes;
 import net.minecraft.commands.Commands;

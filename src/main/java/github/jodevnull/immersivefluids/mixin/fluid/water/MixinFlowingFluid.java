@@ -1,10 +1,10 @@
-package github.jodevnull.immersivefluids.mixin.fluid;
+package github.jodevnull.immersivefluids.mixin.fluid.water;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import github.jodevnull.immersivefluids.FlowWater;
-import github.jodevnull.immersivefluids.features.CachedWater;
+import github.jodevnull.immersivefluids.core.simulation.FlowWater;
+import github.jodevnull.immersivefluids.core.CachedWater;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;

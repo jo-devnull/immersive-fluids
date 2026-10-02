@@ -1,4 +1,4 @@
-package github.jodevnull.immersivefluids.mixin.fluid;
+package github.jodevnull.immersivefluids.mixin.fluid.water;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;

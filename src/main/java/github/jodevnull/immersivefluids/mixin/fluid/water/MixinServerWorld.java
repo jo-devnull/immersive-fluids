@@ -1,6 +1,6 @@
-package github.jodevnull.immersivefluids.mixin.fluid;
+package github.jodevnull.immersivefluids.mixin.fluid.water;
 
-import github.jodevnull.immersivefluids.features.CachedWater;
+import github.jodevnull.immersivefluids.core.CachedWater;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -10,7 +10,8 @@ import java.util.function.BooleanSupplier;
 import net.minecraft.server.level.ServerLevel;
 
 @Mixin(ServerLevel.class)
-public class ServerWorldMixin {
+public class MixinServerWorld
+{
 
     @Inject(at = @At(
         value = "INVOKE",

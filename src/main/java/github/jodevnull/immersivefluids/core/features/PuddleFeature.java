@@ -1,8 +1,10 @@
-package github.jodevnull.immersivefluids.features;
+package github.jodevnull.immersivefluids.core.features;
 
-import github.jodevnull.immersivefluids.PathfinderBFS;
+import github.jodevnull.immersivefluids.core.simulation.PathfinderBFS;
 import java.util.ArrayList;
 import java.util.List;
+
+import github.jodevnull.immersivefluids.core.CachedWater;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 

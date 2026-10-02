@@ -1,10 +1,11 @@
-package github.jodevnull.immersivefluids.features;
+package github.jodevnull.immersivefluids.core.features;
 
+import github.jodevnull.immersivefluids.core.CachedWater;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 
-public class FlowFeature {
-
+public class FlowFeature
+{
     public static BlockPos[] blocks = new BlockPos[4];
 
     public static void execute(BlockPos center) {
@@ -19,9 +20,11 @@ public class FlowFeature {
         int[] waterLevels = new int[4];
         //Arrays.fill(waterLevels, -1);
         int level = CachedWater.getWaterLevel(center);
+
         for (int i = 0; i < 4; i++) {
             waterLevels[i] = CachedWater.getWaterLevel(blocks[i]);
         }
+
         int count = 0;
         int internalLevel;
 
@@ -41,10 +44,11 @@ public class FlowFeature {
                 }
             }
         }
+
         for (int i = 0; i < 4; i++) {
             CachedWater.setWaterLevel(waterLevels[i], blocks[i]);
         }
+
         CachedWater.setWaterLevel(level, center);
     }
-
 }

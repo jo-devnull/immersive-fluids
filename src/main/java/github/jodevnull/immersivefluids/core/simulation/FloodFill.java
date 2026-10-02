@@ -1,4 +1,4 @@
-package github.jodevnull.immersivefluids;
+package github.jodevnull.immersivefluids.core.simulation;
 
 public class FloodFill {
 

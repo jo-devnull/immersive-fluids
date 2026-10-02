@@ -1,11 +1,11 @@
-package github.jodevnull.immersivefluids;
+package github.jodevnull.immersivefluids.core.simulation;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-public class PathfinderBFS {
-
+public final class PathfinderBFS
+{
     public static int[][] distanceMapperBFS(int[][] matrix, List<Node> holes) {
         holes.forEach((h) -> matrix[h.x][h.y] = 0);
         pathExists(matrix, holes);
@@ -43,16 +43,6 @@ public class PathfinderBFS {
         }
     }
 
-    public static class Node {
-        int x;
-        int y;
-        int distanceFromSource;
-
-        public Node(int x, int y, int dis) {
-            this.x = x;
-            this.y = y;
-            this.distanceFromSource = dis;
-        }
-    }
+    public record Node(int x, int y, int distanceFromSource) {}
 }
 

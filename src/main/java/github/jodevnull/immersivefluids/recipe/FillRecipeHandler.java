@@ -1,6 +1,6 @@
 package github.jodevnull.immersivefluids.recipe;
 
-import github.jodevnull.immersivefluids.features.CachedWater;
+import github.jodevnull.immersivefluids.core.CachedWater;
 import github.jodevnull.immersivefluids.registry.ModRecipeTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;

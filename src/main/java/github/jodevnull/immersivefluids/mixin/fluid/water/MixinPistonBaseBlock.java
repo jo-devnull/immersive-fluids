@@ -1,7 +1,7 @@
-package github.jodevnull.immersivefluids.mixin.fluid;
+package github.jodevnull.immersivefluids.mixin.fluid.water;
 
-import github.jodevnull.immersivefluids.features.NonCachedWater;
-import github.jodevnull.immersivefluids.features.SpecialFlow;
+import github.jodevnull.immersivefluids.core.NonCachedWater;
+import github.jodevnull.immersivefluids.core.features.SpecialFlow;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;

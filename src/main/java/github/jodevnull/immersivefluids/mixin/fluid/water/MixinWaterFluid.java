@@ -1,4 +1,4 @@
-package github.jodevnull.immersivefluids.mixin.fluid;
+package github.jodevnull.immersivefluids.mixin.fluid.water;
 
 import net.minecraft.world.level.LevelReader;
 import org.spongepowered.asm.mixin.Mixin;

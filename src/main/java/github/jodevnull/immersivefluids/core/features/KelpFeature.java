@@ -1,12 +1,14 @@
-package github.jodevnull.immersivefluids.features;
+package github.jodevnull.immersivefluids.core.features;
 
 import java.util.ArrayList;
+
+import github.jodevnull.immersivefluids.core.CachedWater;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-import static github.jodevnull.immersivefluids.FlowWater.world;
+import static github.jodevnull.immersivefluids.core.simulation.FlowWater.world;
 
 public class KelpFeature {
 

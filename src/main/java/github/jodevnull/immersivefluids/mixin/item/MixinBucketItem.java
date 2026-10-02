@@ -1,6 +1,6 @@
 package github.jodevnull.immersivefluids.mixin.item;
 
-import github.jodevnull.immersivefluids.features.NonCachedWater;
+import github.jodevnull.immersivefluids.core.NonCachedWater;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;

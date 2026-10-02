@@ -1,9 +1,11 @@
-package github.jodevnull.immersivefluids.features;
+package github.jodevnull.immersivefluids.core.features;
 
+import github.jodevnull.immersivefluids.core.CachedWater;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 
-public class FlowFeatureInfinite {
+public class FlowFeatureInfinite
+{
     public static void execute(BlockPos center) {
         if (!Features.FLOW_FEATURE_ENABLED) return;
 

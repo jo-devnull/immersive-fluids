@@ -1,6 +1,6 @@
-package github.jodevnull.immersivefluids.mixin.fluid;
+package github.jodevnull.immersivefluids.mixin.fluid.lava;
 
-import github.jodevnull.immersivefluids.FlowLava;
+import github.jodevnull.immersivefluids.core.simulation.FlowLava;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -17,7 +17,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(net.minecraft.world.level.material.FlowingFluid.class)
-public class FlowingLavaMixin {
+public class MixinFlowingLava
+{
     @Inject(at = @At("HEAD"), method = "canPassThrough", cancellable = true)
     private void canFlowThrough(BlockGetter level, Fluid fluid, BlockPos pos, BlockState state, Direction direction, BlockPos spreadPos, BlockState spreadState, FluidState fluidState, CallbackInfoReturnable<Boolean> lbruh) {
         if (fluid instanceof LavaFluid) {

@@ -1,4 +1,4 @@
-package github.jodevnull.immersivefluids.features;
+package github.jodevnull.immersivefluids.core;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;

@@ -1,8 +1,8 @@
-package github.jodevnull.immersivefluids.mixin;
+package github.jodevnull.immersivefluids.mixin.rain;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import github.jodevnull.immersivefluids.ModConfig;
-import github.jodevnull.immersivefluids.features.CachedWater;
+import github.jodevnull.immersivefluids.WaterConfig;
+import github.jodevnull.immersivefluids.core.CachedWater;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
@@ -38,12 +38,12 @@ public abstract class MixinServerLevel extends Level
 
     @Inject(method = "tickChunk", at= @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/Block;handlePrecipitation(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/biome/Biome$Precipitation;)V"))
     private void ifc$spawnRainWater(LevelChunk p_8715_, int p_8716_, CallbackInfo ci, @Local(name="blockpos1") BlockPos blockpos) {
-        if (!ModConfig.rainPuddlesEnabled())
+        if (!WaterConfig.rainPuddlesEnabled())
             return;
 
         ifc$tickCounter++;
 
-        if (ifc$tickCounter > ModConfig.rainPuddleTickInterval())
+        if (ifc$tickCounter > WaterConfig.rainPuddleTickInterval())
             ifc$tickCounter = 0;
         else return;
 

@@ -1,6 +1,6 @@
 package github.jodevnull.immersivefluids.event;
 
-import github.jodevnull.immersivefluids.features.CachedWater;
+import github.jodevnull.immersivefluids.core.CachedWater;
 import github.jodevnull.immersivefluids.recipe.FillRecipeHandler;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
