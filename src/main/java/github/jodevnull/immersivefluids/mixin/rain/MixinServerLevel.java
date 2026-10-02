@@ -56,7 +56,7 @@ public abstract class MixinServerLevel extends Level
         final var state = getBlockState(blockpos);
         final var below = getBlockState(blockpos.below());
 
-        if (CachedWater.isNaturalWater(below) || below.is(Blocks.SNOW))
+        if (!getFluidState(blockpos.below()).isEmpty() || below.is(Blocks.SNOW))
             return;
 
         if (state.is(Blocks.AIR)) {

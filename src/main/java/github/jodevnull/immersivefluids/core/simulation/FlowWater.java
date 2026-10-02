@@ -1,5 +1,6 @@
 package github.jodevnull.immersivefluids.core.simulation;
 
+import de.leximon.fluidlogged.Fluidlogged;
 import github.jodevnull.immersivefluids.core.CachedWater;
 import github.jodevnull.immersivefluids.core.features.FlowFeature;
 import github.jodevnull.immersivefluids.core.features.FlowFeatureInfinite;
@@ -35,15 +36,12 @@ public class FlowWater {
             if ((blockState.getBlock() instanceof LiquidBlockContainer))
                 return;
 
-            if (CachedWater.isNatural(blockState))
-                return;
-
             if ((CachedWater.getBlockState(fluidPos.below()).is(Blocks.LAVA)))
                 world.setBlock(fluidPos.below(), Blocks.OBSIDIAN.defaultBlockState(), 11, 11);
 
             final BlockState belowState = CachedWater.getBlockState(fluidPos.below());
 
-            if (belowState.canBeReplaced(Fluids.WATER) && isNotFull(CachedWater.getWaterLevel(fluidPos.below()))) {
+            if (Fluidlogged.isFluidloggable(belowState) && isNotFull(CachedWater.getWaterLevel(fluidPos.below()))) {
                 CachedWater.setWaterLevel(0, fluidPos);
                 CachedWater.addWater(centerLevel, fluidPos.below());
             } else {

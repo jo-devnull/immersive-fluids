@@ -18,16 +18,10 @@ public abstract class MixinBucketItem
             value = "INVOKE",
             target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
     private boolean bucketPlace(Level instance, BlockPos pos, BlockState newState, int flags) {
-        boolean returnValue;
-
-        if (!instance.isClientSide) {
-            if (newState.getBlock() == Blocks.WATER)
-                returnValue = NonCachedWater.addWater(8, pos, instance);
-            else
-                returnValue = instance.setBlockAndUpdate(pos, newState);
-
-            return returnValue;
-        }
+        if (!instance.isClientSide)
+            return newState.is(Blocks.WATER)
+                ? NonCachedWater.addWater(8, pos, instance)
+                : instance.setBlockAndUpdate(pos, newState);
 
         return true;
     }

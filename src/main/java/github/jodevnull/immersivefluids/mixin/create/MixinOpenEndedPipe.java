@@ -29,6 +29,9 @@ public abstract class MixinOpenEndedPipe
     @Shadow
     private Level world;
 
+    @Shadow
+    private BlockPos outputPos;
+
     @ModifyExpressionValue(method = "removeFluidFromSpace", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/material/FluidState;isSource()Z"))
     public boolean ifc_allowNonSourceWater(boolean original, @Local(name = "fluidState") FluidState fluidState, @Local(name = "state") BlockState state) {
         return FluidHelper.isWater(fluidState.getType());
@@ -58,8 +61,8 @@ public abstract class MixinOpenEndedPipe
     }
 
     @ModifyExpressionValue(method = "provideFluidToSpace", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/material/FluidState;isSource()Z"))
-    public boolean ifc_isSourceCheck(boolean original, @Local(name = "state") BlockState state) {
-        if (CachedWater.isWater(state))
+    public boolean ifc_isSourceCheck(boolean original) {
+        if (CachedWater.isWater(outputPos))
             return false;
 
         return original;

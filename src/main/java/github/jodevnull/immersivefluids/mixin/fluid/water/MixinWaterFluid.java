@@ -1,12 +1,13 @@
 package github.jodevnull.immersivefluids.mixin.fluid.water;
 
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.material.WaterFluid;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(net.minecraft.world.level.material.WaterFluid.class)
+@Mixin(WaterFluid.class)
 public class MixinWaterFluid
 {
     @Inject(at = @At("HEAD"), method = "canConvertToSource", cancellable = true)

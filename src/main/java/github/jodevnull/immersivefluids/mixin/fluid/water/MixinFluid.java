@@ -6,7 +6,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -15,9 +14,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Fluid.class)
 public abstract class MixinFluid
 {
-    @Shadow
-    public abstract int getAmount(FluidState p_76141_);
-
     @Inject(method = "isRandomlyTicking", at=@At("HEAD"), cancellable = true)
     private void ifc$enableRandomWaterTick(CallbackInfoReturnable<Boolean> cir) {
         // TODO: implement this

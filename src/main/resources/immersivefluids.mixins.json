@@ -5,18 +5,17 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "MixinLevel",
-    "rain.MixinServerLevel",
     "create.MixinFluidTank",
     "create.MixinOpenEndedPipe",
     "fluid.lava.MixinFlowingLava",
     "fluid.lava.MixinLavaFluid",
     "fluid.water.MixinFlowingFluid",
     "fluid.water.MixinFluid",
-    "fluid.water.MixinLiquidBlock",
     "fluid.water.MixinPistonBaseBlock",
-    "fluid.water.MixinWaterFluid",
     "fluid.water.MixinServerWorld",
-    "item.MixinBucketItem"
+    "fluid.water.MixinWaterFluid",
+    "item.MixinBucketItem",
+    "rain.MixinServerLevel"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -3,6 +3,7 @@ package github.jodevnull.immersivefluids.event;
 import github.jodevnull.immersivefluids.core.CachedWater;
 import github.jodevnull.immersivefluids.recipe.FillRecipeHandler;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -29,7 +30,7 @@ public class ModPlayerEvents
         if (CachedWater.world == null)
             return;
 
-        if (!CachedWater.isWater(state) || CachedWater.isNatural(state))
+        if (state.is(Blocks.WATER))
             return;
 
         if (FillRecipeHandler.handle((ServerLevel) event.getLevel(), player, hand, pos)) {
