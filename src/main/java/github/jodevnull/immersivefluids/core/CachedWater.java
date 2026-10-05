@@ -1,5 +1,6 @@
 package github.jodevnull.immersivefluids.core;
 
+import de.leximon.fluidlogged.Fluidlogged;
 import github.jodevnull.immersivefluids.WaterUtils;
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
@@ -9,6 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -17,6 +19,7 @@ import java.util.Map;
 import java.util.function.LongToIntFunction;
 
 import static github.jodevnull.immersivefluids.WaterUtils.ISFINITE;
+import static github.jodevnull.immersivefluids.WaterUtils.getWaterState;
 
 public class CachedWater
 {
@@ -34,9 +37,10 @@ public class CachedWater
     }
 
     public static int getWaterLevel(BlockPos ipos) {
-        LongToIntFunction func = pos -> {
-            BlockState state = getBlockState(BlockPos.of(pos));
-            return (byte) getWaterLevelOfState(state);
+        LongToIntFunction func = lpos -> {
+            final BlockPos pos = BlockPos.of(lpos);
+            final BlockState state = getBlockState(pos);
+            return (byte) getWaterLevelOfState(pos, state);
         };
 
         if (useCache) {
@@ -57,12 +61,16 @@ public class CachedWater
         return isNotFull(getWaterLevel(pos));
     }
 
-    public static int getWaterLevelOfState(BlockState state) {
+    public static int getWaterLevelOfState(BlockPos pos, BlockState state) {
         if (state.isAir())
             return (byte) 0;
 
         if (state.hasProperty(ISFINITE) && !state.getValue(ISFINITE))
             return (byte) -2;
+
+        if (Fluidlogged.isFluidloggable(state) && world != null) {
+            return world.getFluidState(pos).getAmount();
+        }
 
         FluidState fluidstate = state.getFluidState();
 
@@ -112,21 +120,24 @@ public class CachedWater
     private static void setWaterLevelDirect(int level, BlockPos pos) {
         BlockState prev = getBlockState(pos);
 
-        // FIXME: implement this with fluidlogged
-        if (level == 0) {
-            setBlockStateNoNeighbors(pos, prev, Blocks.AIR.defaultBlockState());
-        } else if (level >= 0) {
-            if (level <= 8) {
-                if (level == 8) {
-                    if (!(prev.getBlock() instanceof LiquidBlockContainer))
-                        setBlockStateNoNeighbors(pos, prev, WaterUtils.getWater());
-                } else {
-                    if (!(prev.getBlock() instanceof BucketPickup))
-                        world.destroyBlock(pos, true);
+        if (level < 0 || level > 8)
+            return;
 
-                    setBlockStateNoNeighbors(pos, prev, WaterUtils.getWater(level));
-                }
-            }
+        if (Fluidlogged.isFluidloggable(prev)) {
+            final int flags = Block.UPDATE_IMMEDIATE | Block.UPDATE_CLIENTS;
+            final var state = getWaterState(level, WaterUtils.MAX_LIFETIME);
+            world.setBlock(pos, prev.trySetValue(BlockStateProperties.WATERLOGGED, level == 8), flags);
+            if (level < 8) WaterUtils.setFluidState(world, pos, state, flags);
+        } else if (level == 0) {
+            setBlockStateNoNeighbors(pos, prev, Blocks.AIR.defaultBlockState());
+        } else if (level == 8) {
+            if (!(prev.getBlock() instanceof LiquidBlockContainer))
+                setBlockStateNoNeighbors(pos, prev, WaterUtils.getWater());
+        } else {
+            if (!(prev.getBlock() instanceof BucketPickup))
+                world.destroyBlock(pos, true);
+
+            setBlockStateNoNeighbors(pos, prev, WaterUtils.getWater(level));
         }
     }
 
@@ -174,10 +185,6 @@ public class CachedWater
         result.release(); // FIXME
         result.acquire();
         return result;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(Block.UPDATE_IMMEDIATE | Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
     }
 
     public static void setBlockStateNoNeighbors(BlockPos pos, BlockState oldState, BlockState state) {

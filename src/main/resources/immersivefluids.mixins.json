@@ -2,21 +2,23 @@
   "required": true,
   "minVersion": "0.8",
   "package": "github.jodevnull.immersivefluids.mixin",
+  "priority": 9999,
+  "mixinPriority": 9999,
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "MixinLevel",
-    "rain.MixinServerLevel",
-    "create.MixinFluidTank",
-    "create.MixinOpenEndedPipe",
+    "compat.create.MixinFluidTank",
+    "compat.create.MixinOpenEndedPipe",
     "fluid.lava.MixinFlowingLava",
     "fluid.lava.MixinLavaFluid",
     "fluid.water.MixinFlowingFluid",
     "fluid.water.MixinFluid",
     "fluid.water.MixinLiquidBlock",
     "fluid.water.MixinPistonBaseBlock",
-    "fluid.water.MixinWaterFluid",
     "fluid.water.MixinServerWorld",
-    "item.MixinBucketItem"
+    "fluid.water.MixinWaterFluid",
+    "item.MixinBucketItem",
+    "rain.MixinServerLevel"
   ],
   "injectors": {
     "defaultRequire": 1

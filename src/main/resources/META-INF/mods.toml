@@ -22,3 +22,10 @@ mandatory = true
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "fluidlogged"
+mandatory = true
+versionRange = "[2.0.1-beta.2,]"
+ordering = "AFTER"
+side = "BOTH"

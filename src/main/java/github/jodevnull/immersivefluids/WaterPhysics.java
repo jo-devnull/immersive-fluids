@@ -30,7 +30,6 @@ public class WaterPhysics
         // Proceed with mild caution.
         final var modEventBus = context.getModEventBus();
         LOGGER.info("Immersive Fluids loaded!");
-
         MinecraftForge.EVENT_BUS.addListener(this::registerCommand);
         ModRecipeTypes.RECIPE_TYPES.register(modEventBus);
         ModRecipeSerializers.RECIPE_SERIALIZERS.register(modEventBus);

@@ -1,4 +1,4 @@
-package github.jodevnull.immersivefluids.mixin.create;
+package github.jodevnull.immersivefluids.mixin.compat.create;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;

@@ -1,6 +1,5 @@
 package github.jodevnull.immersivefluids.mixin.fluid.water;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import github.jodevnull.immersivefluids.WaterUtils;
@@ -36,12 +35,14 @@ public abstract class MixinLiquidBlock extends Block implements BucketPickup
     )
     public void ifc_injectProperties(LiquidBlock instance, BlockState blockState, Operation<Void> original) {
         this.registerDefaultState(
-            this.stateDefinition.any().setValue(LEVEL, 0).setValue(WaterUtils.ISNATURAL, true)
+            this.stateDefinition.any()
+                .setValue(LEVEL, 0)
+                .setValue(WaterUtils.LIFETIME, 0)
         );
     }
 
     @Inject(at = @At("TAIL"), method = "createBlockStateDefinition")
     protected void appendProperties(StateDefinition.Builder<Fluid, FluidState> builder, CallbackInfo Ci) {
-        builder.add(WaterUtils.ISNATURAL);
+        builder.add(WaterUtils.LIFETIME);
     }
 }

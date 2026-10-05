@@ -1,5 +1,6 @@
 package github.jodevnull.immersivefluids.core.simulation;
 
+import de.leximon.fluidlogged.Fluidlogged;
 import github.jodevnull.immersivefluids.WaterUtils;
 import github.jodevnull.immersivefluids.core.CachedWater;
 import github.jodevnull.immersivefluids.core.features.FlowFeature;
@@ -7,6 +8,7 @@ import github.jodevnull.immersivefluids.core.features.FlowFeatureInfinite;
 import github.jodevnull.immersivefluids.core.features.PuddleFeature;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlockContainer;
@@ -29,22 +31,21 @@ public class FlowWater {
         } else {
             FlowWater.world = (ServerLevel) world;
             CachedWater.setup(FlowWater.world, fluidPos);
-            int centerLevel = CachedWater.getWaterLevel(fluidPos);
+            final int centerLevel = CachedWater.getWaterLevel(fluidPos);
+            // final var blockState = world.getBlockState(fluidPos);
 
-            final var blockState = world.getBlockState(fluidPos);
-
-            if ((blockState.getBlock() instanceof LiquidBlockContainer))
+            if (WaterUtils.isNatural((Level) world, fluidPos))
                 return;
 
-            if (WaterUtils.isNatural(blockState))
-                return;
+            // if ((blockState.getBlock() instanceof LiquidBlockContainer))
+            //     return;
 
             if ((CachedWater.getBlockState(fluidPos.below()).is(Blocks.LAVA)))
                 world.setBlock(fluidPos.below(), Blocks.OBSIDIAN.defaultBlockState(), 11, 11);
 
             final BlockState belowState = CachedWater.getBlockState(fluidPos.below());
 
-            if (belowState.canBeReplaced(Fluids.WATER) && isNotFull(CachedWater.getWaterLevel(fluidPos.below()))) {
+            if ((Fluidlogged.isFluidloggable(belowState) || belowState.canBeReplaced(Fluids.WATER)) && isNotFull(CachedWater.getWaterLevel(fluidPos.below()))) {
                 CachedWater.setWaterLevel(0, fluidPos);
                 CachedWater.addWater(centerLevel, fluidPos.below());
             } else {
